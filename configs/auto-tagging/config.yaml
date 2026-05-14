@@ -1,0 +1,7 @@
+configs:
+  - id: sample-auto-tag
+    config:
+      name: poc-managed
+      template: sample-tag-rule.json
+    type:
+      api: auto-tag

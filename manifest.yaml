@@ -1,0 +1,15 @@
+manifestVersion: "1.0"
+
+projects:
+  - name: DTHelperPOCv3
+    path: configs
+
+environmentGroups:
+  - name: production
+    environments:
+      - name: ylq89164
+        url:
+          value: https://ylq89164.apps.dynatrace.com
+        auth:
+          token:
+            name: DT_API_TOKEN

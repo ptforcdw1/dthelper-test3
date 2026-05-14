@@ -1,0 +1,23 @@
+{
+  "dashboardMetadata": {
+    "name": "{{ .name }}",
+    "shared": false,
+    "owner": "",
+    "preset": false
+  },
+  "tiles": [
+    {
+      "name": "Markdown",
+      "tileType": "MARKDOWN",
+      "configured": true,
+      "bounds": {
+        "top": 0,
+        "left": 0,
+        "width": 1672,
+        "height": 152
+      },
+      "tileFilter": {},
+      "markdown": "## POC Dashboard\nDeployed via Monaco from DTHelperPOCv3"
+    }
+  ]
+}

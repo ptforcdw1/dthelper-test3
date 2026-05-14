@@ -1,0 +1,17 @@
+{
+  "displayName": "{{ .name }}",
+  "rules": [
+    {
+      "severityLevel": "AVAILABILITY",
+      "tagFilters": [],
+      "delayInMinutes": 0
+    },
+    {
+      "severityLevel": "PERFORMANCE",
+      "tagFilters": [],
+      "delayInMinutes": 5
+    }
+  ],
+  "managementZoneId": null,
+  "eventTypeFilters": []
+}
