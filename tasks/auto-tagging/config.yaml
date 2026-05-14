@@ -1,0 +1,18 @@
+configs:
+  - id: auto-tagging-ownership-team
+    config:
+      name: auto-tagging-ownership-team
+      template: template.json
+      parameters:
+        teamName:
+          type: environment
+          name: TEAM_NAME
+          default: "POC Team"
+        identifier:
+          type: environment
+          name: TEAM_IDENTIFIER
+          default: "poc-team"
+    type:
+      settings:
+        schema: builtin:ownership.teams
+        scope: environment

@@ -1,8 +1,0 @@
-configs:
-  - id: sample-alerting-profile
-    config:
-      name: POC Alerting Profile
-      template: sample-alerting-profile.json
-      skip: true
-    type:
-      api: alerting-profile

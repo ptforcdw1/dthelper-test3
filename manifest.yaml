@@ -1,8 +1,14 @@
 manifestVersion: "1.0"
 
 projects:
-  - name: DTHelperPOCv3
-    path: configs
+  - name: log-ingest-k8s
+    path: tasks/log-ingest-k8s
+  - name: auto-tagging
+    path: tasks/auto-tagging
+  - name: update-windows
+    path: tasks/update-windows
+  - name: host-alerts
+    path: tasks/host-alerts
 
 environmentGroups:
   - name: production

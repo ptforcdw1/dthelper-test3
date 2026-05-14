@@ -1,0 +1,16 @@
+{
+  "name": "{{ .teamName }}",
+  "identifier": "{{ .identifier }}",
+  "description": "Ownership team created via Monaco (auto-tagging template)",
+  "supplementaryIdentifiers": [],
+  "responsibilities": {
+    "development": false,
+    "security": false,
+    "operations": true,
+    "infrastructure": false,
+    "lineOfBusiness": false
+  },
+  "contactDetails": [],
+  "links": [],
+  "additionalInformation": []
+}

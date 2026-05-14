@@ -1,8 +1,0 @@
-configs:
-  - id: sample-dashboard
-    config:
-      name: POC Overview Dashboard
-      template: sample-dashboard.json
-      skip: true
-    type:
-      api: dashboard

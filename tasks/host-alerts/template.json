@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "title": "{{ .alertTitle }}",
+  "description": "Host CPU anomaly alert created via Monaco",
+  "source": "timeseries avg(dt.host.cpu.usage), by:{dt.entity.host}",
+  "executionSettings": {
+    "actor": "",
+    "queryOffset": 5,
+    "delay": 1
+  },
+  "analyzer": {
+    "name": "dt.davis.health_state_anomaly_detector",
+    "input": []
+  },
+  "eventTemplate": {
+    "properties": []
+  }
+}
