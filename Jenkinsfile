@@ -26,7 +26,7 @@ pipeline {
                         curl -fsSL -o monaco https://github.com/dynatrace-oss/dynatrace-monitoring-as-code/releases/download/v\${MONACO_VERSION}/monaco-linux-amd64
                         chmod +x monaco
                     fi
-                    ./monaco --version
+                    ./monaco --help | head -3
                 """
             }
         }
