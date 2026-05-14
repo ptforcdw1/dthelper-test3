@@ -1,0 +1,9 @@
+configs:
+  - id: poc-log-storage-rule
+    config:
+      name: POC log ingest rule
+      template: log-storage-rule.json
+    type:
+      settings:
+        schema: builtin:logmonitoring.log-storage-settings
+        scope: environment

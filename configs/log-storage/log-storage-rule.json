@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "config-item-title": "{{ .name }}",
+  "send-to-storage": true,
+  "matchers": [
+    {
+      "attribute": "log.source",
+      "operator": "MATCHES",
+      "values": ["/var/log/syslog"]
+    }
+  ]
+}

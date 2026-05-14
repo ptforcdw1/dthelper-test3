@@ -1,5 +1,0 @@
-{
-  "name": "{{ .name }}",
-  "description": "Created via Monaco POC",
-  "rules": []
-}

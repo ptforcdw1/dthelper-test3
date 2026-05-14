@@ -1,9 +1,0 @@
-configs:
-  - id: sample-management-zone
-    config:
-      name: POC Management Zone
-      template: sample-management-zone.json
-    type:
-      settings:
-        schema: builtin:management-zones
-        scope: environment
