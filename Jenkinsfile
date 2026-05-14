@@ -15,19 +15,26 @@ pipeline {
     }
 
     environment {
-        // Verify this tag at: https://github.com/dynatrace-oss/dynatrace-monitoring-as-code/pkgs/container/dynatrace-monitoring-as-code%2Fmonaco
-        MONACO_IMAGE = 'ghcr.io/dynatrace-oss/dynatrace-monitoring-as-code/monaco:v2.14.0'
+        MONACO_VERSION = '2.14.0'
     }
 
     stages {
+        stage('Setup Monaco') {
+            steps {
+                sh """
+                    if [ ! -f monaco ]; then
+                        curl -fsSL -o monaco https://github.com/dynatrace-oss/dynatrace-monitoring-as-code/releases/download/v\${MONACO_VERSION}/monaco-linux-amd64
+                        chmod +x monaco
+                    fi
+                    ./monaco --version
+                """
+            }
+        }
+
         stage('Validate (Dry Run)') {
             steps {
                 withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
-                    script {
-                        docker.image(env.MONACO_IMAGE).inside('-e DT_API_TOKEN') {
-                            sh "monaco deploy manifest.yaml --environment ${params.TARGET_ENVIRONMENT} --dry-run"
-                        }
-                    }
+                    sh "./monaco deploy manifest.yaml --environment ${params.TARGET_ENVIRONMENT} --dry-run"
                 }
             }
         }
@@ -38,11 +45,7 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
-                    script {
-                        docker.image(env.MONACO_IMAGE).inside('-e DT_API_TOKEN') {
-                            sh "monaco deploy manifest.yaml --environment ${params.TARGET_ENVIRONMENT}"
-                        }
-                    }
+                    sh "./monaco deploy manifest.yaml --environment ${params.TARGET_ENVIRONMENT}"
                 }
             }
         }
