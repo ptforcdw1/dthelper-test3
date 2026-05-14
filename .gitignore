@@ -2,3 +2,4 @@
 *.exe
 monaco.exe
 .logs/
+.commit-msg-tmp

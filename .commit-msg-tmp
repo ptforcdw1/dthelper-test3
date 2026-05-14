@@ -1,9 +1,0 @@
-Replace management-zones with log-storage POC config
-
-Tenant ylq89164 does not expose any management-zones schema. Pivot the
-demonstrable config to builtin:logmonitoring.log-storage-settings,
-which is a multi-object Settings 2.0 schema available on the tenant.
-
-Verified end-to-end deploy locally against the tenant.
-
-Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
