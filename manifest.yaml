@@ -9,7 +9,7 @@ environmentGroups:
     environments:
       - name: ylq89164
         url:
-          value: https://ylq89164.apps.dynatrace.com
+          value: https://ylq89164.live.dynatrace.com
         auth:
           token:
             name: DT_API_TOKEN
