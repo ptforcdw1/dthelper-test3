@@ -4,4 +4,6 @@ configs:
       name: POC Management Zone
       template: sample-management-zone.json
     type:
-      api: management-zone
+      settings:
+        schema: builtin:management-zones
+        scope: environment

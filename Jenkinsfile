@@ -15,17 +15,19 @@ pipeline {
     }
 
     environment {
-        MONACO_VERSION = '2.14.0'
+        MONACO_VERSION = '2.28.7'
     }
 
     stages {
         stage('Setup Monaco') {
             steps {
                 sh """
-                    if [ ! -f monaco ]; then
-                        curl -fsSL -o monaco https://github.com/dynatrace-oss/dynatrace-monitoring-as-code/releases/download/v\${MONACO_VERSION}/monaco-linux-amd64
-                        chmod +x monaco
+                    BIN="monaco-\${MONACO_VERSION}"
+                    if [ ! -f "\$BIN" ]; then
+                        curl -fsSL -o "\$BIN" https://github.com/dynatrace-oss/dynatrace-monitoring-as-code/releases/download/v\${MONACO_VERSION}/monaco-linux-amd64
+                        chmod +x "\$BIN"
                     fi
+                    ln -sf "\$BIN" monaco
                     ./monaco --help | head -3
                 """
             }

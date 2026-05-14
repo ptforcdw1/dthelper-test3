@@ -3,5 +3,6 @@ configs:
     config:
       name: poc-managed
       template: sample-tag-rule.json
+      skip: true
     type:
       api: auto-tag
