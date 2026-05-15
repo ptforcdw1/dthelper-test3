@@ -8,7 +8,13 @@ Read `template-index.md`. Parse every `## <name>` heading as an available templa
 
 ## Step 2 — Ask the user which task type to create
 
-Use AskUserQuestion with the template names from `template-index.md` as options (one option per template, use the description line as the option description). Ask: "Which task template do you want to use?"
+AskUserQuestion allows a maximum of 4 options per question. Present templates in pages of 3, with a "More →" option as the 4th slot when there are remaining templates. Repeat until the user picks an actual template name.
+
+Example with 5 templates (A, B, C, D, E):
+- Page 1: options = [A, B, C, "More →"]. If user picks "More →" → Page 2.
+- Page 2: options = [D, E] (no "More →" needed — fewer than 4 remain).
+
+Use the template's description line as each option's description. Ask: "Which task template do you want to use?"
 
 ## Step 3 — Generate the next taskID
 
