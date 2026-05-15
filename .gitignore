@@ -1,4 +1,5 @@
 .env
+petclinic/.env
 *.exe
 monaco.exe
 .logs/
