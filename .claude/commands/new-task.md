@@ -2,13 +2,13 @@ Create a new Monaco task from a template and commit it to git. Follow every step
 
 ---
 
-## Step 1 — List available templates
+## Step 1 — Read the template index
 
-Use Glob to list subdirectories under `templates/`. Extract the folder names. These are the available task types.
+Read `template-index.md`. Parse every `## <name>` heading as an available template name. For each template, also parse the parameter table rows (columns: Parameter, Description, Default) — you will need these in Step 6.
 
 ## Step 2 — Ask the user which task type to create
 
-Use AskUserQuestion with the template folder names as options (one option per template). Ask: "Which task template do you want to use?"
+Use AskUserQuestion with the template names from `template-index.md` as options (one option per template, use the description line as the option description). Ask: "Which task template do you want to use?"
 
 ## Step 3 — Generate the next taskID
 
@@ -23,15 +23,15 @@ Use PowerShell to:
 2. Copy `templates/<chosen-template>/config.yaml` to `tasks/<taskID>/config.yaml`
 3. Copy `templates/<chosen-template>/template.json` to `tasks/<taskID>/template.json`
 
-## Step 5 — Read the template files
+## Step 5 — Load parameter definitions
 
-Read `tasks/<taskID>/config.yaml`. Identify every key under the `parameters:` section — these are the values the user must fill in. Also read `tasks/<taskID>/template.json` so you can show the user how each parameter maps to the final payload.
+From the data already parsed in Step 1, extract the parameter rows for the chosen template. Each row gives you: parameter name, description, and default value. No file reads needed.
 
 ## Step 6 — Ask the user for each parameter value
 
-For each parameter found in config.yaml, ask the user for a value. Show:
+For each parameter from Step 5, ask the user for a value. Show:
 - The parameter name
-- What it controls (read from the `# EDIT:` comment on the same line if present)
+- What it controls (the Description column)
 - The current default value
 
 Ask all parameters in a single AskUserQuestion call where possible (up to 4 at a time). If there are more than 4, ask in batches.
