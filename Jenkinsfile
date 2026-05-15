@@ -5,7 +5,7 @@ pipeline {
         string(
             name: 'TASK_ID',
             defaultValue: '',
-            description: 'Subdirectory name under tasks/ (e.g. "log-001"). Must contain config.yaml and template.json copied from templates/.'
+            description: 'Subdirectory name under tasks/ (e.g. "task001"). Must contain config.yaml copied from templates/.'
         )
         string(
             name: 'TARGET_ENVIRONMENT',
@@ -15,7 +15,7 @@ pipeline {
         booleanParam(
             name: 'SKIP_DEPLOY',
             defaultValue: false,
-            description: 'Run dry-run validation only — skip actual deployment'
+            description: 'Run dry-run validation only — skip actual deployment (deploy tasks only)'
         )
     }
 
@@ -33,6 +33,11 @@ pipeline {
                     if (!fileExists("tasks/${params.TASK_ID}/config.yaml")) {
                         error "tasks/${params.TASK_ID}/config.yaml not found. Create the directory, copy a template from templates/, and push to git."
                     }
+                    env.TASK_TYPE = sh(
+                        script: """val=\$(grep '^task_type:' tasks/${params.TASK_ID}/config.yaml | awk '{print \$2}' | tr -d '"'); echo \${val:-deploy}""",
+                        returnStdout: true
+                    ).trim()
+                    echo "Task type: ${env.TASK_TYPE}"
                 }
             }
         }
@@ -72,6 +77,9 @@ environmentGroups:
         }
 
         stage('Validate (Dry Run)') {
+            when {
+                expression { return env.TASK_TYPE == 'deploy' }
+            }
             steps {
                 withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
                     sh './monaco deploy manifest-run.yaml --dry-run'
@@ -81,7 +89,10 @@ environmentGroups:
 
         stage('Deploy') {
             when {
-                expression { return !params.SKIP_DEPLOY }
+                allOf {
+                    expression { return env.TASK_TYPE == 'deploy' }
+                    expression { return !params.SKIP_DEPLOY }
+                }
             }
             steps {
                 withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
@@ -89,11 +100,33 @@ environmentGroups:
                 }
             }
         }
+
+        stage('Download') {
+            when {
+                expression { return env.TASK_TYPE == 'download' }
+            }
+            steps {
+                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
+                    script {
+                        def schema = sh(
+                            script: """grep 'schema:' tasks/${params.TASK_ID}/config.yaml | awk '{print \$2}' | tr -d '"'""",
+                            returnStdout: true
+                        ).trim()
+                        def outputFolder = sh(
+                            script: """val=\$(grep 'outputFolder:' tasks/${params.TASK_ID}/config.yaml | awk '{print \$2}' | tr -d '"'); echo \${val:-output}""",
+                            returnStdout: true
+                        ).trim()
+                        sh "./monaco download --manifest manifest-run.yaml --environment ${params.TARGET_ENVIRONMENT} --specific-api ${schema} --output-folder tasks/${params.TASK_ID}/${outputFolder}"
+                    }
+                }
+                archiveArtifacts artifacts: "tasks/${params.TASK_ID}/output/**/*", allowEmptyArchive: true
+            }
+        }
     }
 
     post {
         success {
-            echo "Task '${params.TASK_ID}' deployed to ${params.TARGET_ENVIRONMENT} successfully."
+            echo "Task '${params.TASK_ID}' completed successfully on ${params.TARGET_ENVIRONMENT}."
         }
         failure {
             echo "Task '${params.TASK_ID}' failed on ${params.TARGET_ENVIRONMENT}. Review the logs above."

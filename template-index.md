@@ -28,3 +28,11 @@ Host CPU anomaly alerting — creates a Davis anomaly detector for host CPU.
 | Parameter | Description | Default |
 |---|---|---|
 | `alertTitle` | alert display title | `POC Host CPU Alert` |
+
+## get-alerts
+Download all existing alert configs from Dynatrace — runs `monaco download` for the given schema and archives results as a Jenkins artifact.
+
+| Parameter | Description | Default |
+|---|---|---|
+| `schema` | Settings 2.0 schema to download | `builtin:davis.anomaly-detectors` |
+| `outputFolder` | subfolder under tasks/\<taskID\>/ to write downloaded configs | `output` |
