@@ -1,0 +1,1328 @@
+﻿{
+    "dynatrace":  "1",
+    "schemaId":  "builtin:service-detection.full-web-service",
+    "displayName":  "Service detection rules for Full Web Services",
+    "description":  "Rules are evaluated from top to bottom, and the first matching rule applies. Rule conditions are evaluated before Service Id Contributors are applied. Note that conditions do not modify attributes of requests. If conditions match, then Service Id Contributors are applied. **All of the Contributors are always applied.** But it is possible to influence the creation of Services by choosing how they get transformed.\\\nMore extensive information on Service detection rules can be found [here](https://dt-url.net/9i03b79).",
+    "documentation":  "",
+    "schemaGroups":  [
+                         "group:service-detection"
+                     ],
+    "version":  "2.1.14",
+    "multiObject":  true,
+    "ordered":  true,
+    "maxObjects":  1000,
+    "maturity":  "GENERAL_AVAILABILITY",
+    "allowedScopes":  [
+                          "environment"
+                      ],
+    "enums":  {
+                  "contributionTypeWithOverride":  {
+                                                       "displayName":  "Contribution type with the ability to override to constant value",
+                                                       "description":  "Defines whether the original value should be used, transformations should be applied or it should be overridden to a constant value.",
+                                                       "documentation":  "",
+                                                       "items":  [
+                                                                     {
+                                                                         "value":  "OriginalValue",
+                                                                         "displayName":  "Use the original value",
+                                                                         "description":  "Use the value as it is."
+                                                                     },
+                                                                     {
+                                                                         "value":  "OverrideValue",
+                                                                         "displayName":  "Override to constant value",
+                                                                         "description":  "Use a fixed value."
+                                                                     },
+                                                                     {
+                                                                         "value":  "TransformValue",
+                                                                         "displayName":  "Use transformed value",
+                                                                         "description":  "Apply transformations to the original value."
+                                                                     }
+                                                                 ],
+                                                       "type":  "enum"
+                                                   },
+                  "transformationType":  {
+                                             "displayName":  "Transformation type",
+                                             "description":  "",
+                                             "documentation":  "",
+                                             "items":  [
+                                                           {
+                                                               "value":  "BEFORE",
+                                                               "displayName":  "before"
+                                                           },
+                                                           {
+                                                               "value":  "AFTER",
+                                                               "displayName":  "after"
+                                                           },
+                                                           {
+                                                               "value":  "BETWEEN",
+                                                               "displayName":  "between"
+                                                           },
+                                                           {
+                                                               "value":  "REPLACE_BETWEEN",
+                                                               "displayName":  "replace between"
+                                                           },
+                                                           {
+                                                               "value":  "REMOVE_NUMBERS",
+                                                               "displayName":  "remove numbers"
+                                                           },
+                                                           {
+                                                               "value":  "REMOVE_CREDIT_CARDS",
+                                                               "displayName":  "remove credit card numbers"
+                                                           },
+                                                           {
+                                                               "value":  "REMOVE_IBANS",
+                                                               "displayName":  "remove IBANs"
+                                                           },
+                                                           {
+                                                               "value":  "REMOVE_IPS",
+                                                               "displayName":  "remove IPs"
+                                                           },
+                                                           {
+                                                               "value":  "SPLIT_SELECT",
+                                                               "displayName":  "split select"
+                                                           },
+                                                           {
+                                                               "value":  "TAKE_SEGMENTS",
+                                                               "displayName":  "take segments"
+                                                           }
+                                                       ],
+                                             "type":  "enum"
+                                         },
+                  "contributionType":  {
+                                           "displayName":  "Contribution type",
+                                           "description":  "Defines whether the original value should be used or transformations should be applied.",
+                                           "documentation":  "",
+                                           "items":  [
+                                                         {
+                                                             "value":  "OriginalValue",
+                                                             "displayName":  "Use the original value",
+                                                             "description":  "Use the value as it is."
+                                                         },
+                                                         {
+                                                             "value":  "OverrideValue",
+                                                             "displayName":  "Override to constant value",
+                                                             "description":  "Use a fixed value."
+                                                         },
+                                                         {
+                                                             "value":  "TransformValue",
+                                                             "displayName":  "Use transformed value",
+                                                             "description":  "Apply transformations to the original value."
+                                                         },
+                                                         {
+                                                             "value":  "TransformURL",
+                                                             "displayName":  "Use transformed URL path",
+                                                             "description":  "Extract segments from the URL path and optionally transform them."
+                                                         }
+                                                     ],
+                                           "type":  "enum"
+                                       },
+                  "contextRootTransformationType":  {
+                                                        "displayName":  "Transformation type",
+                                                        "description":  "",
+                                                        "documentation":  "",
+                                                        "items":  [
+                                                                      {
+                                                                          "value":  "BEFORE",
+                                                                          "displayName":  "before"
+                                                                      },
+                                                                      {
+                                                                          "value":  "REPLACE_BETWEEN",
+                                                                          "displayName":  "replace between"
+                                                                      },
+                                                                      {
+                                                                          "value":  "REMOVE_NUMBERS",
+                                                                          "displayName":  "remove numbers"
+                                                                      },
+                                                                      {
+                                                                          "value":  "REMOVE_CREDIT_CARDS",
+                                                                          "displayName":  "remove credit card numbers"
+                                                                      },
+                                                                      {
+                                                                          "value":  "REMOVE_IBANS",
+                                                                          "displayName":  "remove IBANs"
+                                                                      },
+                                                                      {
+                                                                          "value":  "REMOVE_IPS",
+                                                                          "displayName":  "remove IPs"
+                                                                      }
+                                                                  ],
+                                                        "type":  "enum"
+                                                    },
+                  "frameworkType":  {
+                                        "displayName":  "Framework type",
+                                        "description":  "",
+                                        "documentation":  "",
+                                        "items":  [
+                                                      {
+                                                          "value":  "AXIS",
+                                                          "displayName":  "Apache Axis"
+                                                      },
+                                                      {
+                                                          "value":  "CXF",
+                                                          "displayName":  "Apache CXF"
+                                                      },
+                                                      {
+                                                          "value":  "HESSIAN",
+                                                          "displayName":  "Hessian"
+                                                      },
+                                                      {
+                                                          "value":  "JAX_WS_RI",
+                                                          "displayName":  "JAX-WS Reference Implementation"
+                                                      },
+                                                      {
+                                                          "value":  "JBOSS",
+                                                          "displayName":  "JBoss"
+                                                      },
+                                                      {
+                                                          "value":  "JERSEY",
+                                                          "displayName":  "Jersey"
+                                                      },
+                                                      {
+                                                          "value":  "PROGRESS",
+                                                          "displayName":  "PROGRESS"
+                                                      },
+                                                      {
+                                                          "value":  "RESTEASY",
+                                                          "displayName":  "RESTEasy"
+                                                      },
+                                                      {
+                                                          "value":  "RESTLET",
+                                                          "displayName":  "Restlet"
+                                                      },
+                                                      {
+                                                          "value":  "SPRING",
+                                                          "displayName":  "Spring"
+                                                      },
+                                                      {
+                                                          "value":  "TIBCO",
+                                                          "displayName":  "TIBCO"
+                                                      },
+                                                      {
+                                                          "value":  "WEBLOGIC",
+                                                          "displayName":  "WebLogic"
+                                                      },
+                                                      {
+                                                          "value":  "WEBMETHODS",
+                                                          "displayName":  "WebMethods"
+                                                      },
+                                                      {
+                                                          "value":  "WEBSPHERE",
+                                                          "displayName":  "Websphere"
+                                                      },
+                                                      {
+                                                          "value":  "WINK",
+                                                          "displayName":  "Apache Wink"
+                                                      }
+                                                  ],
+                                        "type":  "enum"
+                                    }
+              },
+    "types":  {
+                  "condition":  {
+                                    "version":  "0",
+                                    "versionInfo":  "",
+                                    "displayName":  "condition",
+                                    "summaryPattern":  "{attribute|enumValue, select, IpInRange {{attribute} {compareOperationType|toLowerCase} from {ipRangeFrom} to {ipRangeTo}} NotIpInRange {{attribute} {compareOperationType|toLowerCase} from {ipRangeFrom} to {ipRangeTo}} other {{attribute} {compareOperationType|toLowerCase} {textValues}{tagValues}{intValue}{framework}}}",
+                                    "description":  "",
+                                    "documentation":  "",
+                                    "properties":  {
+                                                       "attribute":  {
+                                                                         "displayName":  "Take the value of this attribute",
+                                                                         "description":  "",
+                                                                         "documentation":  "",
+                                                                         "type":  "text",
+                                                                         "subType":  "datasource",
+                                                                         "datasource":  {
+                                                                                            "identifier":  "Condition_Attribute_DataSource",
+                                                                                            "filterProperties":  [
+
+                                                                                                                 ],
+                                                                                            "resetValue":  "NEVER",
+                                                                                            "validate":  true,
+                                                                                            "fullContext":  false,
+                                                                                            "useApiSearch":  false
+                                                                                        },
+                                                                         "nullable":  false,
+                                                                         "constraints":  [
+                                                                                             {
+                                                                                                 "type":  "LENGTH",
+                                                                                                 "maxLength":  500,
+                                                                                                 "minLength":  1
+                                                                                             }
+                                                                                         ],
+                                                                         "maxObjects":  1,
+                                                                         "modificationPolicy":  "DEFAULT",
+                                                                         "default":  "PG_Tag"
+                                                                     },
+                                                       "compareOperationType":  {
+                                                                                    "displayName":  "Apply this operation",
+                                                                                    "description":  "",
+                                                                                    "documentation":  "",
+                                                                                    "type":  "text",
+                                                                                    "subType":  "datasource",
+                                                                                    "datasource":  {
+                                                                                                       "identifier":  "Condition_CompareOperation_DataSource",
+                                                                                                       "filterProperties":  [
+                                                                                                                                "attribute"
+                                                                                                                            ],
+                                                                                                       "resetValue":  "NEVER",
+                                                                                                       "validate":  true,
+                                                                                                       "fullContext":  false,
+                                                                                                       "useApiSearch":  false
+                                                                                                   },
+                                                                                    "nullable":  false,
+                                                                                    "constraints":  [
+                                                                                                        {
+                                                                                                            "type":  "LENGTH",
+                                                                                                            "maxLength":  500,
+                                                                                                            "minLength":  1
+                                                                                                        }
+                                                                                                    ],
+                                                                                    "maxObjects":  1,
+                                                                                    "modificationPolicy":  "DEFAULT",
+                                                                                    "default":  "TagEquals"
+                                                                                },
+                                                       "textValues":  {
+                                                                          "displayName":  "Values",
+                                                                          "description":  "If multiple values are specified, at least one of them must match for the condition to match",
+                                                                          "documentation":  "",
+                                                                          "type":  "set",
+                                                                          "items":  {
+                                                                                        "displayName":  "",
+                                                                                        "description":  "",
+                                                                                        "documentation":  "",
+                                                                                        "type":  "text",
+                                                                                        "constraints":  [
+                                                                                                            {
+                                                                                                                "type":  "LENGTH"
+                                                                                                            }
+                                                                                                        ]
+                                                                                    },
+                                                                          "nullable":  false,
+                                                                          "precondition":  {
+                                                                                               "type":  "IN",
+                                                                                               "property":  "compareOperationType",
+                                                                                               "expectedValues":  [
+                                                                                                                      "TagKeyEquals",
+                                                                                                                      "StringEndsWith",
+                                                                                                                      "NotStringEndsWith",
+                                                                                                                      "StringStartsWith",
+                                                                                                                      "NotStringStartsWith",
+                                                                                                                      "StringContains",
+                                                                                                                      "NotStringContains",
+                                                                                                                      "StringEquals",
+                                                                                                                      "NotStringEquals"
+                                                                                                                  ]
+                                                                                           },
+                                                                          "minObjects":  1,
+                                                                          "maxObjects":  100,
+                                                                          "modificationPolicy":  "DEFAULT"
+                                                                      },
+                                                       "tagValues":  {
+                                                                         "displayName":  "Values",
+                                                                         "description":  "If multiple values are specified, at least one of them must match for the condition to match",
+                                                                         "documentation":  "",
+                                                                         "type":  "set",
+                                                                         "items":  {
+                                                                                       "displayName":  "",
+                                                                                       "description":  "",
+                                                                                       "documentation":  "",
+                                                                                       "type":  "text",
+                                                                                       "subType":  "tag",
+                                                                                       "constraints":  [
+                                                                                                           {
+                                                                                                               "type":  "CUSTOM_VALIDATOR_REF",
+                                                                                                               "customValidatorId":  "universal-tag-validator",
+                                                                                                               "skipAsyncValidation":  false
+                                                                                                           },
+                                                                                                           {
+                                                                                                               "type":  "LENGTH",
+                                                                                                               "maxLength":  500,
+                                                                                                               "minLength":  1
+                                                                                                           }
+                                                                                                       ]
+                                                                                   },
+                                                                         "nullable":  false,
+                                                                         "precondition":  {
+                                                                                              "type":  "EQUALS",
+                                                                                              "property":  "compareOperationType",
+                                                                                              "expectedValue":  "TagEquals"
+                                                                                          },
+                                                                         "minObjects":  1,
+                                                                         "maxObjects":  100,
+                                                                         "modificationPolicy":  "DEFAULT"
+                                                                     },
+                                                       "intValue":  {
+                                                                        "displayName":  "Value",
+                                                                        "description":  "",
+                                                                        "documentation":  "",
+                                                                        "type":  "integer",
+                                                                        "nullable":  false,
+                                                                        "constraints":  [
+                                                                                            {
+                                                                                                "type":  "RANGE",
+                                                                                                "minimum":  0
+                                                                                            }
+                                                                                        ],
+                                                                        "precondition":  {
+                                                                                             "type":  "IN",
+                                                                                             "property":  "compareOperationType",
+                                                                                             "expectedValues":  [
+                                                                                                                    "IntGreaterThan",
+                                                                                                                    "IntLessThan"
+                                                                                                                ]
+                                                                                         },
+                                                                        "maxObjects":  1,
+                                                                        "modificationPolicy":  "DEFAULT",
+                                                                        "default":  0
+                                                                    },
+                                                       "intValues":  {
+                                                                         "displayName":  "Values",
+                                                                         "description":  "",
+                                                                         "documentation":  "",
+                                                                         "type":  "set",
+                                                                         "items":  {
+                                                                                       "displayName":  "",
+                                                                                       "description":  "",
+                                                                                       "documentation":  "",
+                                                                                       "type":  "integer"
+                                                                                   },
+                                                                         "nullable":  false,
+                                                                         "precondition":  {
+                                                                                              "type":  "IN",
+                                                                                              "property":  "compareOperationType",
+                                                                                              "expectedValues":  [
+                                                                                                                     "IntEquals",
+                                                                                                                     "NotIntEquals"
+                                                                                                                 ]
+                                                                                          },
+                                                                         "minObjects":  1,
+                                                                         "maxObjects":  10,
+                                                                         "modificationPolicy":  "DEFAULT"
+                                                                     },
+                                                       "ipRangeFrom":  {
+                                                                           "displayName":  "From",
+                                                                           "description":  "",
+                                                                           "documentation":  "",
+                                                                           "type":  "text",
+                                                                           "nullable":  false,
+                                                                           "constraints":  [
+                                                                                               {
+                                                                                                   "type":  "LENGTH",
+                                                                                                   "maxLength":  500,
+                                                                                                   "minLength":  1
+                                                                                               }
+                                                                                           ],
+                                                                           "precondition":  {
+                                                                                                "type":  "IN",
+                                                                                                "property":  "compareOperationType",
+                                                                                                "expectedValues":  [
+                                                                                                                       "IpInRange",
+                                                                                                                       "NotIpInRange"
+                                                                                                                   ]
+                                                                                            },
+                                                                           "maxObjects":  1,
+                                                                           "modificationPolicy":  "DEFAULT",
+                                                                           "default":  "0.0.0.0"
+                                                                       },
+                                                       "ipRangeTo":  {
+                                                                         "displayName":  "To",
+                                                                         "description":  "",
+                                                                         "documentation":  "",
+                                                                         "type":  "text",
+                                                                         "nullable":  false,
+                                                                         "constraints":  [
+                                                                                             {
+                                                                                                 "type":  "LENGTH",
+                                                                                                 "maxLength":  500,
+                                                                                                 "minLength":  1
+                                                                                             }
+                                                                                         ],
+                                                                         "precondition":  {
+                                                                                              "type":  "IN",
+                                                                                              "property":  "compareOperationType",
+                                                                                              "expectedValues":  [
+                                                                                                                     "IpInRange",
+                                                                                                                     "NotIpInRange"
+                                                                                                                 ]
+                                                                                          },
+                                                                         "maxObjects":  1,
+                                                                         "modificationPolicy":  "DEFAULT",
+                                                                         "default":  "255.255.255.255"
+                                                                     },
+                                                       "framework":  {
+                                                                         "displayName":  "Technology",
+                                                                         "description":  "",
+                                                                         "documentation":  "",
+                                                                         "type":  "set",
+                                                                         "items":  {
+                                                                                       "displayName":  "",
+                                                                                       "description":  "",
+                                                                                       "documentation":  "",
+                                                                                       "type":  {
+                                                                                                    "$ref":  "#/enums/frameworkType"
+                                                                                                }
+                                                                                   },
+                                                                         "nullable":  false,
+                                                                         "precondition":  {
+                                                                                              "type":  "IN",
+                                                                                              "property":  "compareOperationType",
+                                                                                              "expectedValues":  [
+                                                                                                                     "FrameworkEquals",
+                                                                                                                     "NotFrameworkEquals"
+                                                                                                                 ]
+                                                                                          },
+                                                                         "minObjects":  1,
+                                                                         "maxObjects":  10,
+                                                                         "modificationPolicy":  "DEFAULT"
+                                                                     },
+                                                       "ignoreCase":  {
+                                                                          "displayName":  "Ignore case",
+                                                                          "description":  "Ignore case sensitivity for texts.",
+                                                                          "documentation":  "",
+                                                                          "type":  "boolean",
+                                                                          "nullable":  false,
+                                                                          "precondition":  {
+                                                                                               "type":  "IN",
+                                                                                               "property":  "compareOperationType",
+                                                                                               "expectedValues":  [
+                                                                                                                      "TagEquals",
+                                                                                                                      "TagKeyEquals",
+                                                                                                                      "StringEndsWith",
+                                                                                                                      "NotStringEndsWith",
+                                                                                                                      "StringStartsWith",
+                                                                                                                      "NotStringStartsWith",
+                                                                                                                      "StringContains",
+                                                                                                                      "NotStringContains",
+                                                                                                                      "StringEquals",
+                                                                                                                      "NotStringEquals"
+                                                                                                                  ]
+                                                                                           },
+                                                                          "maxObjects":  1,
+                                                                          "modificationPolicy":  "DEFAULT",
+                                                                          "default":  false
+                                                                      }
+                                                   },
+                                    "constraints":  [
+                                                        {
+                                                            "type":  "CUSTOM_VALIDATOR_REF",
+                                                            "customValidatorId":  "ip-validation",
+                                                            "skipAsyncValidation":  false
+                                                        }
+                                                    ],
+                                    "type":  "object"
+                                },
+                  "transformation":  {
+                                         "version":  "0",
+                                         "versionInfo":  "",
+                                         "displayName":  "Transformation",
+                                         "summaryPattern":  "{transformationType|enumValue, select, BEFORE {Use value before {suffix}} AFTER {Use value after {prefix}} BETWEEN {Use value between {prefix|valueSet, select, true {{prefix}} other {the beginning}} and {suffix|valueSet, select, true {{suffix}} other {the end}}} REPLACE_BETWEEN {Replace value between {prefix|valueSet, select, true {{prefix}} other {the beginning}} and {suffix|valueSet, select, true {{suffix}} other {the end}} with {replacementValue}} REMOVE_NUMBERS {Remove numbers {minDigitCount|valueSet, select, true {with a minimum of {minDigitCount, plural, one {# digit} other {# digits}}} other {}}} REMOVE_CREDIT_CARDS {Remove credit card numbers} REMOVE_IBANS {Remove IBANs} REMOVE_IPS {Remove IPs} SPLIT_SELECT {Split text by {splitDelimiter} and select the element at index {selectIndex}} TAKE_SEGMENTS {Split text by {splitDelimiter} and take the {takeFromEnd, select, true {last} other {first}} {segmentCount, plural, one {# element} other {# elements}}} other {}}",
+                                         "description":  "",
+                                         "documentation":  "",
+                                         "properties":  {
+                                                            "transformationType":  {
+                                                                                       "displayName":  "Transformation type",
+                                                                                       "description":  "Defines what kind of transformation will be applied on the original value.",
+                                                                                       "documentation":  "",
+                                                                                       "type":  {
+                                                                                                    "$ref":  "#/enums/transformationType"
+                                                                                                },
+                                                                                       "nullable":  false,
+                                                                                       "maxObjects":  1,
+                                                                                       "modificationPolicy":  "DEFAULT",
+                                                                                       "default":  "BEFORE"
+                                                                                   },
+                                                            "prefix":  {
+                                                                           "displayName":  "prefix",
+                                                                           "description":  "",
+                                                                           "documentation":  "",
+                                                                           "type":  "text",
+                                                                           "nullable":  true,
+                                                                           "constraints":  [
+                                                                                               {
+                                                                                                   "type":  "LENGTH",
+                                                                                                   "maxLength":  500,
+                                                                                                   "minLength":  1
+                                                                                               }
+                                                                                           ],
+                                                                           "precondition":  {
+                                                                                                "type":  "IN",
+                                                                                                "property":  "transformationType",
+                                                                                                "expectedValues":  [
+                                                                                                                       "AFTER",
+                                                                                                                       "BETWEEN",
+                                                                                                                       "REPLACE_BETWEEN"
+                                                                                                                   ]
+                                                                                            },
+                                                                           "maxObjects":  1,
+                                                                           "modificationPolicy":  "DEFAULT"
+                                                                       },
+                                                            "suffix":  {
+                                                                           "displayName":  "suffix",
+                                                                           "description":  "",
+                                                                           "documentation":  "",
+                                                                           "type":  "text",
+                                                                           "nullable":  true,
+                                                                           "constraints":  [
+                                                                                               {
+                                                                                                   "type":  "LENGTH",
+                                                                                                   "maxLength":  500,
+                                                                                                   "minLength":  1
+                                                                                               }
+                                                                                           ],
+                                                                           "precondition":  {
+                                                                                                "type":  "IN",
+                                                                                                "property":  "transformationType",
+                                                                                                "expectedValues":  [
+                                                                                                                       "BEFORE",
+                                                                                                                       "BETWEEN",
+                                                                                                                       "REPLACE_BETWEEN"
+                                                                                                                   ]
+                                                                                            },
+                                                                           "maxObjects":  1,
+                                                                           "modificationPolicy":  "DEFAULT"
+                                                                       },
+                                                            "replacementValue":  {
+                                                                                     "displayName":  "replacement",
+                                                                                     "description":  "",
+                                                                                     "documentation":  "",
+                                                                                     "type":  "text",
+                                                                                     "nullable":  true,
+                                                                                     "constraints":  [
+                                                                                                         {
+                                                                                                             "type":  "LENGTH",
+                                                                                                             "maxLength":  500,
+                                                                                                             "minLength":  1
+                                                                                                         }
+                                                                                                     ],
+                                                                                     "precondition":  {
+                                                                                                          "type":  "EQUALS",
+                                                                                                          "property":  "transformationType",
+                                                                                                          "expectedValue":  "REPLACE_BETWEEN"
+                                                                                                      },
+                                                                                     "maxObjects":  1,
+                                                                                     "modificationPolicy":  "DEFAULT"
+                                                                                 },
+                                                            "splitDelimiter":  {
+                                                                                   "displayName":  "split by",
+                                                                                   "description":  "",
+                                                                                   "documentation":  "",
+                                                                                   "type":  "text",
+                                                                                   "nullable":  true,
+                                                                                   "constraints":  [
+                                                                                                       {
+                                                                                                           "type":  "LENGTH",
+                                                                                                           "maxLength":  500,
+                                                                                                           "minLength":  1
+                                                                                                       }
+                                                                                                   ],
+                                                                                   "precondition":  {
+                                                                                                        "type":  "IN",
+                                                                                                        "property":  "transformationType",
+                                                                                                        "expectedValues":  [
+                                                                                                                               "SPLIT_SELECT",
+                                                                                                                               "TAKE_SEGMENTS"
+                                                                                                                           ]
+                                                                                                    },
+                                                                                   "maxObjects":  1,
+                                                                                   "modificationPolicy":  "DEFAULT"
+                                                                               },
+                                                            "selectIndex":  {
+                                                                                "displayName":  "select index",
+                                                                                "description":  "",
+                                                                                "documentation":  "",
+                                                                                "type":  "integer",
+                                                                                "nullable":  false,
+                                                                                "constraints":  [
+                                                                                                    {
+                                                                                                        "type":  "RANGE",
+                                                                                                        "minimum":  1
+                                                                                                    }
+                                                                                                ],
+                                                                                "precondition":  {
+                                                                                                     "type":  "EQUALS",
+                                                                                                     "property":  "transformationType",
+                                                                                                     "expectedValue":  "SPLIT_SELECT"
+                                                                                                 },
+                                                                                "maxObjects":  1,
+                                                                                "modificationPolicy":  "DEFAULT",
+                                                                                "default":  1
+                                                                            },
+                                                            "minDigitCount":  {
+                                                                                  "displayName":  "min digit count",
+                                                                                  "description":  "",
+                                                                                  "documentation":  "",
+                                                                                  "type":  "integer",
+                                                                                  "nullable":  false,
+                                                                                  "constraints":  [
+                                                                                                      {
+                                                                                                          "type":  "RANGE",
+                                                                                                          "minimum":  1
+                                                                                                      }
+                                                                                                  ],
+                                                                                  "precondition":  {
+                                                                                                       "type":  "EQUALS",
+                                                                                                       "property":  "transformationType",
+                                                                                                       "expectedValue":  "REMOVE_NUMBERS"
+                                                                                                   },
+                                                                                  "maxObjects":  1,
+                                                                                  "modificationPolicy":  "DEFAULT",
+                                                                                  "default":  1
+                                                                              },
+                                                            "includeHexNumbers":  {
+                                                                                      "displayName":  "include hexadecimal numbers",
+                                                                                      "description":  "",
+                                                                                      "documentation":  "",
+                                                                                      "type":  "boolean",
+                                                                                      "nullable":  false,
+                                                                                      "precondition":  {
+                                                                                                           "type":  "EQUALS",
+                                                                                                           "property":  "transformationType",
+                                                                                                           "expectedValue":  "REMOVE_NUMBERS"
+                                                                                                       },
+                                                                                      "maxObjects":  1,
+                                                                                      "modificationPolicy":  "DEFAULT",
+                                                                                      "default":  false
+                                                                                  },
+                                                            "segmentCount":  {
+                                                                                 "displayName":  "segment count",
+                                                                                 "description":  "How many segments should be taken.",
+                                                                                 "documentation":  "",
+                                                                                 "type":  "integer",
+                                                                                 "nullable":  false,
+                                                                                 "constraints":  [
+                                                                                                     {
+                                                                                                         "type":  "RANGE",
+                                                                                                         "minimum":  1
+                                                                                                     }
+                                                                                                 ],
+                                                                                 "precondition":  {
+                                                                                                      "type":  "EQUALS",
+                                                                                                      "property":  "transformationType",
+                                                                                                      "expectedValue":  "TAKE_SEGMENTS"
+                                                                                                  },
+                                                                                 "maxObjects":  1,
+                                                                                 "modificationPolicy":  "DEFAULT",
+                                                                                 "default":  1
+                                                                             },
+                                                            "takeFromEnd":  {
+                                                                                "displayName":  "take from end",
+                                                                                "description":  "",
+                                                                                "documentation":  "",
+                                                                                "type":  "boolean",
+                                                                                "nullable":  false,
+                                                                                "precondition":  {
+                                                                                                     "type":  "EQUALS",
+                                                                                                     "property":  "transformationType",
+                                                                                                     "expectedValue":  "TAKE_SEGMENTS"
+                                                                                                 },
+                                                                                "maxObjects":  1,
+                                                                                "modificationPolicy":  "DEFAULT",
+                                                                                "default":  false
+                                                                            }
+                                                        },
+                                         "type":  "object"
+                                     },
+                  "valueOverride":  {
+                                        "version":  "0",
+                                        "versionInfo":  "",
+                                        "displayName":  "Value override",
+                                        "summaryPattern":  "",
+                                        "description":  "",
+                                        "documentation":  "",
+                                        "properties":  {
+                                                           "value":  {
+                                                                         "displayName":  "Value",
+                                                                         "description":  "",
+                                                                         "documentation":  "",
+                                                                         "type":  "text",
+                                                                         "nullable":  false,
+                                                                         "constraints":  [
+                                                                                             {
+                                                                                                 "type":  "LENGTH"
+                                                                                             }
+                                                                                         ],
+                                                                         "maxObjects":  1,
+                                                                         "modificationPolicy":  "DEFAULT",
+                                                                         "default":  ""
+                                                                     }
+                                                       },
+                                        "type":  "object"
+                                    },
+                  "transformationSet":  {
+                                            "version":  "0",
+                                            "versionInfo":  "",
+                                            "displayName":  "transformationSet",
+                                            "summaryPattern":  "",
+                                            "description":  "",
+                                            "documentation":  "",
+                                            "properties":  {
+                                                               "contributionType":  {
+                                                                                        "displayName":  "Contribution type",
+                                                                                        "description":  "Defines whether the original value should be used or if a transformation set should be used to override a value or transform it.",
+                                                                                        "documentation":  "",
+                                                                                        "type":  {
+                                                                                                     "$ref":  "#/enums/contributionTypeWithOverride"
+                                                                                                 },
+                                                                                        "nullable":  false,
+                                                                                        "maxObjects":  1,
+                                                                                        "modificationPolicy":  "DEFAULT",
+                                                                                        "default":  "OriginalValue"
+                                                                                    },
+                                                               "valueOverride":  {
+                                                                                     "displayName":  "Value override",
+                                                                                     "description":  "The value to be used instead of the detected value.",
+                                                                                     "documentation":  "",
+                                                                                     "type":  {
+                                                                                                  "$ref":  "#/types/valueOverride"
+                                                                                              },
+                                                                                     "nullable":  false,
+                                                                                     "precondition":  {
+                                                                                                          "type":  "EQUALS",
+                                                                                                          "property":  "contributionType",
+                                                                                                          "expectedValue":  "OverrideValue"
+                                                                                                      },
+                                                                                     "maxObjects":  1,
+                                                                                     "modificationPolicy":  "DEFAULT"
+                                                                                 },
+                                                               "transformations":  {
+                                                                                       "displayName":  "Transformations",
+                                                                                       "description":  "Choose how to transform a value before it contributes to the Service Id. Note that all of the Transformations are always applied. Transformations are applied in the order they are specified, and the output of the previous transformation is the input for the next one. The resulting value contributes to the Service Id and can be found on the **Service overview page** under **Properties and tags**.",
+                                                                                       "documentation":  "",
+                                                                                       "type":  "list",
+                                                                                       "items":  {
+                                                                                                     "displayName":  "",
+                                                                                                     "description":  "",
+                                                                                                     "documentation":  "",
+                                                                                                     "type":  {
+                                                                                                                  "$ref":  "#/types/transformation"
+                                                                                                              }
+                                                                                                 },
+                                                                                       "nullable":  false,
+                                                                                       "precondition":  {
+                                                                                                            "type":  "EQUALS",
+                                                                                                            "property":  "contributionType",
+                                                                                                            "expectedValue":  "TransformValue"
+                                                                                                        },
+                                                                                       "minObjects":  1,
+                                                                                       "maxObjects":  10,
+                                                                                       "modificationPolicy":  "DEFAULT"
+                                                                                   }
+                                                           },
+                                            "type":  "object"
+                                        },
+                  "serviceIdContributor":  {
+                                               "version":  "0",
+                                               "versionInfo":  "",
+                                               "displayName":  "serviceIdContributor",
+                                               "summaryPattern":  "",
+                                               "description":  "",
+                                               "documentation":  "",
+                                               "properties":  {
+                                                                  "enableIdContributor":  {
+                                                                                              "displayName":  "Transform this value before letting it contribute to the Service Id",
+                                                                                              "description":  "",
+                                                                                              "documentation":  "",
+                                                                                              "type":  "boolean",
+                                                                                              "nullable":  false,
+                                                                                              "maxObjects":  1,
+                                                                                              "modificationPolicy":  "DEFAULT",
+                                                                                              "default":  false
+                                                                                          },
+                                                                  "serviceIdContributor":  {
+                                                                                               "displayName":  "",
+                                                                                               "description":  "",
+                                                                                               "documentation":  "",
+                                                                                               "type":  {
+                                                                                                            "$ref":  "#/types/transformationSet"
+                                                                                                        },
+                                                                                               "nullable":  false,
+                                                                                               "precondition":  {
+                                                                                                                    "type":  "EQUALS",
+                                                                                                                    "property":  "enableIdContributor",
+                                                                                                                    "expectedValue":  true
+                                                                                                                },
+                                                                                               "maxObjects":  1,
+                                                                                               "modificationPolicy":  "DEFAULT"
+                                                                                           }
+                                                              },
+                                               "type":  "object"
+                                           },
+                  "reducedTransformation":  {
+                                                "version":  "0",
+                                                "versionInfo":  "",
+                                                "displayName":  "Transformation",
+                                                "summaryPattern":  "{transformationType|enumValue, select, BEFORE {Use value before {suffix}} REPLACE_BETWEEN {Replace value between {prefix|valueSet, select, true {{prefix}} other {the beginning}} and {suffix|valueSet, select, true {{suffix}} other {the end}} with {replacementValue}} REMOVE_NUMBERS {Remove numbers {minDigitCount|valueSet, select, true {with a minimum of {minDigitCount, plural, one {# digit} other {# digits}}} other {}}} REMOVE_CREDIT_CARDS {Remove credit card numbers} REMOVE_IBANS {Remove IBANs} REMOVE_IPS {Remove IPs} other {}}",
+                                                "description":  "",
+                                                "documentation":  "",
+                                                "properties":  {
+                                                                   "transformationType":  {
+                                                                                              "displayName":  "Transformation Type",
+                                                                                              "description":  "Defines what kind of transformation will be applied on the original value.",
+                                                                                              "documentation":  "",
+                                                                                              "type":  {
+                                                                                                           "$ref":  "#/enums/contextRootTransformationType"
+                                                                                                       },
+                                                                                              "nullable":  false,
+                                                                                              "maxObjects":  1,
+                                                                                              "modificationPolicy":  "DEFAULT",
+                                                                                              "default":  "BEFORE"
+                                                                                          },
+                                                                   "prefix":  {
+                                                                                  "displayName":  "prefix",
+                                                                                  "description":  "",
+                                                                                  "documentation":  "",
+                                                                                  "type":  "text",
+                                                                                  "nullable":  true,
+                                                                                  "constraints":  [
+                                                                                                      {
+                                                                                                          "type":  "LENGTH",
+                                                                                                          "maxLength":  500,
+                                                                                                          "minLength":  1
+                                                                                                      }
+                                                                                                  ],
+                                                                                  "precondition":  {
+                                                                                                       "type":  "IN",
+                                                                                                       "property":  "transformationType",
+                                                                                                       "expectedValues":  [
+                                                                                                                              "REPLACE_BETWEEN"
+                                                                                                                          ]
+                                                                                                   },
+                                                                                  "maxObjects":  1,
+                                                                                  "modificationPolicy":  "DEFAULT"
+                                                                              },
+                                                                   "suffix":  {
+                                                                                  "displayName":  "suffix",
+                                                                                  "description":  "",
+                                                                                  "documentation":  "",
+                                                                                  "type":  "text",
+                                                                                  "nullable":  true,
+                                                                                  "constraints":  [
+                                                                                                      {
+                                                                                                          "type":  "LENGTH",
+                                                                                                          "maxLength":  500,
+                                                                                                          "minLength":  1
+                                                                                                      }
+                                                                                                  ],
+                                                                                  "precondition":  {
+                                                                                                       "type":  "IN",
+                                                                                                       "property":  "transformationType",
+                                                                                                       "expectedValues":  [
+                                                                                                                              "BEFORE",
+                                                                                                                              "REPLACE_BETWEEN"
+                                                                                                                          ]
+                                                                                                   },
+                                                                                  "maxObjects":  1,
+                                                                                  "modificationPolicy":  "DEFAULT"
+                                                                              },
+                                                                   "replacementValue":  {
+                                                                                            "displayName":  "replacement",
+                                                                                            "description":  "",
+                                                                                            "documentation":  "",
+                                                                                            "type":  "text",
+                                                                                            "nullable":  true,
+                                                                                            "constraints":  [
+                                                                                                                {
+                                                                                                                    "type":  "LENGTH",
+                                                                                                                    "maxLength":  500,
+                                                                                                                    "minLength":  1
+                                                                                                                }
+                                                                                                            ],
+                                                                                            "precondition":  {
+                                                                                                                 "type":  "EQUALS",
+                                                                                                                 "property":  "transformationType",
+                                                                                                                 "expectedValue":  "REPLACE_BETWEEN"
+                                                                                                             },
+                                                                                            "maxObjects":  1,
+                                                                                            "modificationPolicy":  "DEFAULT"
+                                                                                        },
+                                                                   "minDigitCount":  {
+                                                                                         "displayName":  "min digit count",
+                                                                                         "description":  "",
+                                                                                         "documentation":  "",
+                                                                                         "type":  "integer",
+                                                                                         "nullable":  false,
+                                                                                         "constraints":  [
+                                                                                                             {
+                                                                                                                 "type":  "RANGE",
+                                                                                                                 "minimum":  1
+                                                                                                             }
+                                                                                                         ],
+                                                                                         "precondition":  {
+                                                                                                              "type":  "EQUALS",
+                                                                                                              "property":  "transformationType",
+                                                                                                              "expectedValue":  "REMOVE_NUMBERS"
+                                                                                                          },
+                                                                                         "maxObjects":  1,
+                                                                                         "modificationPolicy":  "DEFAULT",
+                                                                                         "default":  1
+                                                                                     },
+                                                                   "includeHexNumbers":  {
+                                                                                             "displayName":  "include hexadecimal numbers",
+                                                                                             "description":  "",
+                                                                                             "documentation":  "",
+                                                                                             "type":  "boolean",
+                                                                                             "nullable":  false,
+                                                                                             "precondition":  {
+                                                                                                                  "type":  "EQUALS",
+                                                                                                                  "property":  "transformationType",
+                                                                                                                  "expectedValue":  "REMOVE_NUMBERS"
+                                                                                                              },
+                                                                                             "maxObjects":  1,
+                                                                                             "modificationPolicy":  "DEFAULT",
+                                                                                             "default":  false
+                                                                                         }
+                                                               },
+                                                "type":  "object"
+                                            },
+                  "contextRoot":  {
+                                      "version":  "0",
+                                      "versionInfo":  "",
+                                      "displayName":  "contextRoot",
+                                      "summaryPattern":  "",
+                                      "description":  "",
+                                      "documentation":  "",
+                                      "properties":  {
+                                                         "contributionType":  {
+                                                                                  "displayName":  "Contribution type",
+                                                                                  "description":  "Defines whether the original value should be used or if a transformation set should be used to override a value or transform it.",
+                                                                                  "documentation":  "",
+                                                                                  "type":  {
+                                                                                               "$ref":  "#/enums/contributionType"
+                                                                                           },
+                                                                                  "nullable":  false,
+                                                                                  "maxObjects":  1,
+                                                                                  "modificationPolicy":  "DEFAULT",
+                                                                                  "default":  "OriginalValue"
+                                                                              },
+                                                         "valueOverride":  {
+                                                                               "displayName":  "Value override",
+                                                                               "description":  "The value to be used instead of the detected value.",
+                                                                               "documentation":  "",
+                                                                               "type":  {
+                                                                                            "$ref":  "#/types/valueOverride"
+                                                                                        },
+                                                                               "nullable":  false,
+                                                                               "precondition":  {
+                                                                                                    "type":  "EQUALS",
+                                                                                                    "property":  "contributionType",
+                                                                                                    "expectedValue":  "OverrideValue"
+                                                                                                },
+                                                                               "maxObjects":  1,
+                                                                               "modificationPolicy":  "DEFAULT"
+                                                                           },
+                                                         "segmentCount":  {
+                                                                              "displayName":  "Segments to copy from URL path",
+                                                                              "description":  "The number of segments of the URL to be kept. The URL is divided by slashes (/), the indexing starts with 1 at context root. For example, if you specify 2 for the `www.dynatrace.com/support/help/dynatrace-api/` URL, the value of `support/help` is used.",
+                                                                              "documentation":  "",
+                                                                              "type":  "integer",
+                                                                              "nullable":  false,
+                                                                              "constraints":  [
+                                                                                                  {
+                                                                                                      "type":  "RANGE",
+                                                                                                      "minimum":  0
+                                                                                                  }
+                                                                                              ],
+                                                                              "precondition":  {
+                                                                                                   "type":  "EQUALS",
+                                                                                                   "property":  "contributionType",
+                                                                                                   "expectedValue":  "TransformURL"
+                                                                                               },
+                                                                              "maxObjects":  1,
+                                                                              "modificationPolicy":  "DEFAULT",
+                                                                              "default":  0
+                                                                          },
+                                                         "transformations":  {
+                                                                                 "displayName":  "Transformations",
+                                                                                 "description":  "Choose how to transform a value before it contributes to the Service Id. Note that all of the Transformations are always applied. Transformations are applied in the order they are specified, and the output of the previous transformation is the input for the next one. The resulting value contributes to the Service Id and can be found on the **Service overview page** under **Properties and tags**.",
+                                                                                 "documentation":  "",
+                                                                                 "type":  "list",
+                                                                                 "items":  {
+                                                                                               "displayName":  "",
+                                                                                               "description":  "",
+                                                                                               "documentation":  "",
+                                                                                               "type":  {
+                                                                                                            "$ref":  "#/types/reducedTransformation"
+                                                                                                        }
+                                                                                           },
+                                                                                 "nullable":  false,
+                                                                                 "precondition":  {
+                                                                                                      "type":  "IN",
+                                                                                                      "property":  "contributionType",
+                                                                                                      "expectedValues":  [
+                                                                                                                             "TransformValue",
+                                                                                                                             "TransformURL"
+                                                                                                                         ]
+                                                                                                  },
+                                                                                 "minObjects":  0,
+                                                                                 "maxObjects":  10,
+                                                                                 "modificationPolicy":  "DEFAULT"
+                                                                             }
+                                                     },
+                                      "constraints":  [
+                                                          {
+                                                              "type":  "CUSTOM_VALIDATOR_REF",
+                                                              "customValidatorId":  "context-root-transformation-validation",
+                                                              "skipAsyncValidation":  false
+                                                          }
+                                                      ],
+                                      "type":  "object"
+                                  },
+                  "contextIdContributor":  {
+                                               "version":  "0",
+                                               "versionInfo":  "",
+                                               "displayName":  "contextIdContributor",
+                                               "summaryPattern":  "",
+                                               "description":  "",
+                                               "documentation":  "",
+                                               "properties":  {
+                                                                  "enableIdContributor":  {
+                                                                                              "displayName":  "Transform this value before letting it contribute to the Service Id",
+                                                                                              "description":  "",
+                                                                                              "documentation":  "",
+                                                                                              "type":  "boolean",
+                                                                                              "nullable":  false,
+                                                                                              "maxObjects":  1,
+                                                                                              "modificationPolicy":  "DEFAULT",
+                                                                                              "default":  false
+                                                                                          },
+                                                                  "serviceIdContributor":  {
+                                                                                               "displayName":  "",
+                                                                                               "description":  "",
+                                                                                               "documentation":  "",
+                                                                                               "type":  {
+                                                                                                            "$ref":  "#/types/contextRoot"
+                                                                                                        },
+                                                                                               "nullable":  false,
+                                                                                               "precondition":  {
+                                                                                                                    "type":  "EQUALS",
+                                                                                                                    "property":  "enableIdContributor",
+                                                                                                                    "expectedValue":  true
+                                                                                                                },
+                                                                                               "maxObjects":  1,
+                                                                                               "modificationPolicy":  "DEFAULT"
+                                                                                           }
+                                                              },
+                                               "type":  "object"
+                                           },
+                  "idContributorsType":  {
+                                             "version":  "0",
+                                             "versionInfo":  "",
+                                             "displayName":  "idContributorsType",
+                                             "summaryPattern":  "",
+                                             "description":  "",
+                                             "documentation":  "",
+                                             "properties":  {
+                                                                "detectAsWebRequestService":  {
+                                                                                                  "displayName":  "Detect as web request service",
+                                                                                                  "description":  "Detect the matching requests as full web services (false) or web request services (true).\n\nSetting this field to true prevents detecting of matching requests as full web services. A web request service is created instead. If you need to further modify the resulting web request service, you need to create a separate [Full web request rule](builtin:service-detection.full-web-request).",
+                                                                                                  "documentation":  "",
+                                                                                                  "type":  "boolean",
+                                                                                                  "nullable":  false,
+                                                                                                  "maxObjects":  1,
+                                                                                                  "modificationPolicy":  "DEFAULT",
+                                                                                                  "default":  false
+                                                                                              },
+                                                                "applicationId":  {
+                                                                                      "displayName":  "Application identifier",
+                                                                                      "description":  "",
+                                                                                      "documentation":  "",
+                                                                                      "type":  {
+                                                                                                   "$ref":  "#/types/serviceIdContributor"
+                                                                                               },
+                                                                                      "nullable":  false,
+                                                                                      "precondition":  {
+                                                                                                           "type":  "EQUALS",
+                                                                                                           "property":  "detectAsWebRequestService",
+                                                                                                           "expectedValue":  false
+                                                                                                       },
+                                                                                      "maxObjects":  1,
+                                                                                      "modificationPolicy":  "DEFAULT"
+                                                                                  },
+                                                                "contextRoot":  {
+                                                                                    "displayName":  "URL context root",
+                                                                                    "description":  "The context root is the first segment of the request URL after the Server name. For example, in the `www.dynatrace.com/support/help/dynatrace-api/` URL the context root is `/support`. The context root value can be found on the **Service overview page** under **Properties and tags**.",
+                                                                                    "documentation":  "",
+                                                                                    "type":  {
+                                                                                                 "$ref":  "#/types/contextIdContributor"
+                                                                                             },
+                                                                                    "nullable":  false,
+                                                                                    "precondition":  {
+                                                                                                         "type":  "EQUALS",
+                                                                                                         "property":  "detectAsWebRequestService",
+                                                                                                         "expectedValue":  false
+                                                                                                     },
+                                                                                    "maxObjects":  1,
+                                                                                    "modificationPolicy":  "DEFAULT"
+                                                                                },
+                                                                "serverName":  {
+                                                                                   "displayName":  "Server name",
+                                                                                   "description":  "",
+                                                                                   "documentation":  "",
+                                                                                   "type":  {
+                                                                                                "$ref":  "#/types/serviceIdContributor"
+                                                                                            },
+                                                                                   "nullable":  false,
+                                                                                   "precondition":  {
+                                                                                                        "type":  "EQUALS",
+                                                                                                        "property":  "detectAsWebRequestService",
+                                                                                                        "expectedValue":  false
+                                                                                                    },
+                                                                                   "maxObjects":  1,
+                                                                                   "modificationPolicy":  "DEFAULT"
+                                                                               },
+                                                                "webServiceName":  {
+                                                                                       "displayName":  "Web service name",
+                                                                                       "description":  "",
+                                                                                       "documentation":  "",
+                                                                                       "type":  {
+                                                                                                    "$ref":  "#/types/serviceIdContributor"
+                                                                                                },
+                                                                                       "nullable":  false,
+                                                                                       "precondition":  {
+                                                                                                            "type":  "EQUALS",
+                                                                                                            "property":  "detectAsWebRequestService",
+                                                                                                            "expectedValue":  false
+                                                                                                        },
+                                                                                       "maxObjects":  1,
+                                                                                       "modificationPolicy":  "DEFAULT"
+                                                                                   },
+                                                                "webServiceNamespace":  {
+                                                                                            "displayName":  "Web service namespace",
+                                                                                            "description":  "",
+                                                                                            "documentation":  "",
+                                                                                            "type":  {
+                                                                                                         "$ref":  "#/types/serviceIdContributor"
+                                                                                                     },
+                                                                                            "nullable":  false,
+                                                                                            "precondition":  {
+                                                                                                                 "type":  "EQUALS",
+                                                                                                                 "property":  "detectAsWebRequestService",
+                                                                                                                 "expectedValue":  false
+                                                                                                             },
+                                                                                            "maxObjects":  1,
+                                                                                            "modificationPolicy":  "DEFAULT"
+                                                                                        }
+                                                            },
+                                             "constraints":  [
+                                                                 {
+                                                                     "type":  "CUSTOM_VALIDATOR_REF",
+                                                                     "customMessage":  "At least one service identifier contributor (application identifier, URL context root, server name, web service name or web service namespace) must exist.",
+                                                                     "customValidatorId":  "at-least-one-service-id-contributor",
+                                                                     "skipAsyncValidation":  false
+                                                                 }
+                                                             ],
+                                             "type":  "object"
+                                         }
+              },
+    "properties":  {
+                       "enabled":  {
+                                       "displayName":  "Enabled",
+                                       "description":  "",
+                                       "documentation":  "",
+                                       "type":  "boolean",
+                                       "nullable":  false,
+                                       "maxObjects":  1,
+                                       "modificationPolicy":  "DEFAULT",
+                                       "default":  true
+                                   },
+                       "name":  {
+                                    "displayName":  "Rule name",
+                                    "description":  "",
+                                    "documentation":  "",
+                                    "type":  "text",
+                                    "nullable":  false,
+                                    "constraints":  [
+                                                        {
+                                                            "type":  "LENGTH",
+                                                            "maxLength":  500,
+                                                            "minLength":  1
+                                                        }
+                                                    ],
+                                    "maxObjects":  1,
+                                    "modificationPolicy":  "DEFAULT",
+                                    "default":  "New Name"
+                                },
+                       "description":  {
+                                           "displayName":  "Description",
+                                           "description":  "",
+                                           "documentation":  "",
+                                           "type":  "text",
+                                           "subType":  "multiline",
+                                           "nullable":  true,
+                                           "constraints":  [
+                                                               {
+                                                                   "type":  "LENGTH",
+                                                                   "maxLength":  500,
+                                                                   "minLength":  1
+                                                               }
+                                                           ],
+                                           "maxObjects":  1,
+                                           "modificationPolicy":  "DEFAULT"
+                                       },
+                       "idContributors":  {
+                                              "displayName":  "Service identifier contributors",
+                                              "description":  "Contributors to the Service Identifier calculation. All of the Contributors are always applied.",
+                                              "documentation":  "",
+                                              "type":  {
+                                                           "$ref":  "#/types/idContributorsType"
+                                                       },
+                                              "nullable":  false,
+                                              "maxObjects":  1,
+                                              "modificationPolicy":  "DEFAULT"
+                                          },
+                       "conditions":  {
+                                          "displayName":  "Conditions",
+                                          "description":  "A list of conditions necessary for the rule to take effect. If multiple conditions are specified, they must **all** match a Request for the rule to apply. If there is no condition at all, the rule is always applied. Conditions are evaluated against attributes, but do not modify them.",
+                                          "documentation":  "",
+                                          "type":  "list",
+                                          "items":  {
+                                                        "displayName":  "",
+                                                        "description":  "",
+                                                        "documentation":  "",
+                                                        "type":  {
+                                                                     "$ref":  "#/types/condition"
+                                                                 }
+                                                    },
+                                          "nullable":  false,
+                                          "minObjects":  0,
+                                          "maxObjects":  10,
+                                          "modificationPolicy":  "DEFAULT"
+                                      }
+                   },
+    "uiCustomization":  {
+                            "table":  {
+                                          "columns":  [
+                                                          {
+                                                              "id":  "asWebRequest",
+                                                              "displayName":  "Detect as web request service",
+                                                              "propertyRef":  "./idContributors/detectAsWebRequestService"
+                                                          },
+                                                          {
+                                                              "id":  "applicationId",
+                                                              "displayName":  "Application ID",
+                                                              "propertyRef":  "./idContributors/applicationId/enableIdContributor"
+                                                          },
+                                                          {
+                                                              "id":  "contextRoot",
+                                                              "displayName":  "URL context root",
+                                                              "propertyRef":  "./idContributors/contextRoot/enableIdContributor"
+                                                          },
+                                                          {
+                                                              "id":  "serverName",
+                                                              "displayName":  "Server name",
+                                                              "propertyRef":  "./idContributors/serverName/enableIdContributor"
+                                                          },
+                                                          {
+                                                              "id":  "webSvcName",
+                                                              "displayName":  "Web service name",
+                                                              "propertyRef":  "./idContributors/webServiceName/enableIdContributor"
+                                                          },
+                                                          {
+                                                              "id":  "webSvcNamespace",
+                                                              "displayName":  "Web service namespace",
+                                                              "propertyRef":  "./idContributors/webServiceNamespace/enableIdContributor"
+                                                          }
+                                                      ]
+                                      }
+                        }
+}
