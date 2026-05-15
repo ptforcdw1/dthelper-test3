@@ -1,0 +1,11 @@
+configs:
+  - id: update-window-weekly
+    config:
+      name: "update-window-weekly"
+      template: template.json
+      parameters:
+        windowName: "Update windows 1"    # EDIT: window display name
+    type:
+      settings:
+        schema: builtin:deployment.management.update-windows
+        scope: environment
