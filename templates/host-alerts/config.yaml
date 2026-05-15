@@ -1,13 +1,10 @@
 configs:
   - id: host-cpu-alert
     config:
-      name: host-cpu-alert
+      name: "host-cpu-alert"
       template: template.json
       parameters:
-        alertTitle:
-          type: environment
-          name: ALERT_TITLE
-          default: "POC Host CPU Alert"
+        alertTitle: "POC Host CPU Alert"    # EDIT: alert display title
     type:
       settings:
         schema: builtin:davis.anomaly-detectors

@@ -1,13 +1,10 @@
 configs:
   - id: update-window-weekly
     config:
-      name: update-window-weekly
+      name: "update-window-weekly"
       template: template.json
       parameters:
-        windowName:
-          type: environment
-          name: WINDOW_NAME
-          default: "POC Update Window"
+        windowName: "POC Update Window"    # EDIT: window display name
     type:
       settings:
         schema: builtin:deployment.management.update-windows

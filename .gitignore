@@ -3,3 +3,4 @@
 monaco.exe
 .logs/
 .commit-msg-tmp
+manifest-run.yaml

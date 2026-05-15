@@ -2,31 +2,21 @@ pipeline {
     agent any
 
     parameters {
-        choice(
-            name: 'TASK',
-            choices: ['log-ingest-k8s', 'auto-tagging', 'update-windows', 'host-alerts'],
-            description: 'Select the configuration task/template to deploy'
+        string(
+            name: 'TASK_ID',
+            defaultValue: '',
+            description: 'Subdirectory name under tasks/ (e.g. "log-001"). Must contain config.yaml and template.json copied from templates/.'
         )
         string(
             name: 'TARGET_ENVIRONMENT',
             defaultValue: 'ylq89164',
-            description: 'Environment name from manifest.yaml'
+            description: 'Environment name (must match an entry in the generated manifest)'
         )
         booleanParam(
             name: 'SKIP_DEPLOY',
             defaultValue: false,
-            description: 'Run dry-run validation only, skip actual deployment'
+            description: 'Run dry-run validation only — skip actual deployment'
         )
-        // --- Task-specific parameters ---
-        // [log-ingest-k8s]
-        string(name: 'K8S_NAMESPACE', defaultValue: 'default', description: '[log-ingest-k8s] Kubernetes namespace to route to log storage')
-        // [auto-tagging]
-        string(name: 'TEAM_NAME', defaultValue: 'POC Team', description: '[auto-tagging] Ownership team display name')
-        string(name: 'TEAM_IDENTIFIER', defaultValue: 'poc-team', description: '[auto-tagging] Unique team identifier (lowercase, no spaces)')
-        // [update-windows]
-        string(name: 'WINDOW_NAME', defaultValue: 'POC Update Window', description: '[update-windows] OneAgent update window name')
-        // [host-alerts]
-        string(name: 'ALERT_TITLE', defaultValue: 'POC Host CPU Alert', description: '[host-alerts] Davis anomaly detector title')
     }
 
     environment {
@@ -34,6 +24,19 @@ pipeline {
     }
 
     stages {
+        stage('Validate Task') {
+            steps {
+                script {
+                    if (!params.TASK_ID?.trim()) {
+                        error 'TASK_ID is required. Set it to the subdirectory name under tasks/.'
+                    }
+                    if (!fileExists("tasks/${params.TASK_ID}/config.yaml")) {
+                        error "tasks/${params.TASK_ID}/config.yaml not found. Create the directory, copy a template from templates/, and push to git."
+                    }
+                }
+            }
+        }
+
         stage('Setup Monaco') {
             steps {
                 sh """
@@ -48,18 +51,30 @@ pipeline {
             }
         }
 
+        stage('Prepare Manifest') {
+            steps {
+                writeFile file: 'manifest-run.yaml', text: """\
+manifestVersion: "1.0"
+projects:
+  - name: ${params.TASK_ID}
+    path: tasks/${params.TASK_ID}
+environmentGroups:
+  - name: production
+    environments:
+      - name: ${params.TARGET_ENVIRONMENT}
+        url:
+          value: https://ylq89164.live.dynatrace.com
+        auth:
+          token:
+            name: DT_API_TOKEN
+"""
+            }
+        }
+
         stage('Validate (Dry Run)') {
             steps {
                 withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
-                    withEnv([
-                        "K8S_NAMESPACE=${params.K8S_NAMESPACE}",
-                        "TEAM_NAME=${params.TEAM_NAME}",
-                        "TEAM_IDENTIFIER=${params.TEAM_IDENTIFIER}",
-                        "WINDOW_NAME=${params.WINDOW_NAME}",
-                        "ALERT_TITLE=${params.ALERT_TITLE}"
-                    ]) {
-                        sh "./monaco deploy manifest.yaml --environment ${params.TARGET_ENVIRONMENT} --project ${params.TASK} --dry-run"
-                    }
+                    sh './monaco deploy manifest-run.yaml --dry-run'
                 }
             }
         }
@@ -70,15 +85,7 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
-                    withEnv([
-                        "K8S_NAMESPACE=${params.K8S_NAMESPACE}",
-                        "TEAM_NAME=${params.TEAM_NAME}",
-                        "TEAM_IDENTIFIER=${params.TEAM_IDENTIFIER}",
-                        "WINDOW_NAME=${params.WINDOW_NAME}",
-                        "ALERT_TITLE=${params.ALERT_TITLE}"
-                    ]) {
-                        sh "./monaco deploy manifest.yaml --environment ${params.TARGET_ENVIRONMENT} --project ${params.TASK}"
-                    }
+                    sh './monaco deploy manifest-run.yaml'
                 }
             }
         }
@@ -86,10 +93,10 @@ pipeline {
 
     post {
         success {
-            echo "Monaco task '${params.TASK}' deployed to ${params.TARGET_ENVIRONMENT} successfully."
+            echo "Task '${params.TASK_ID}' deployed to ${params.TARGET_ENVIRONMENT} successfully."
         }
         failure {
-            echo "Monaco task '${params.TASK}' failed on ${params.TARGET_ENVIRONMENT}. Review the logs above."
+            echo "Task '${params.TASK_ID}' failed on ${params.TARGET_ENVIRONMENT}. Review the logs above."
         }
     }
 }

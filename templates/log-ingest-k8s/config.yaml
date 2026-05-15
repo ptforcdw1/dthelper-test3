@@ -1,13 +1,10 @@
 configs:
   - id: log-ingest-k8s-namespace
     config:
-      name: log-ingest-k8s-namespace
+      name: "log-ingest-k8s-namespace"
       template: template.json
       parameters:
-        namespace:
-          type: environment
-          name: K8S_NAMESPACE
-          default: "default"
+        namespace: "default"        # EDIT: target k8s namespace
     type:
       settings:
         schema: builtin:logmonitoring.log-storage-settings

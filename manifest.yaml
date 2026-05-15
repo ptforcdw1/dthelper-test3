@@ -1,14 +1,17 @@
 manifestVersion: "1.0"
 
+# Reference manifest — lists all templates for local testing only.
+# Jenkins generates manifest-run.yaml at runtime pointing to tasks/<taskID>/.
+
 projects:
   - name: log-ingest-k8s
-    path: tasks/log-ingest-k8s
+    path: templates/log-ingest-k8s
   - name: auto-tagging
-    path: tasks/auto-tagging
+    path: templates/auto-tagging
   - name: update-windows
-    path: tasks/update-windows
+    path: templates/update-windows
   - name: host-alerts
-    path: tasks/host-alerts
+    path: templates/host-alerts
 
 environmentGroups:
   - name: production

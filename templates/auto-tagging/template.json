@@ -1,7 +1,7 @@
 {
   "name": "{{ .teamName }}",
   "identifier": "{{ .identifier }}",
-  "description": "Ownership team created via Monaco (auto-tagging template)",
+  "description": "Ownership team created via Monaco",
   "supplementaryIdentifiers": [],
   "responsibilities": {
     "development": false,
