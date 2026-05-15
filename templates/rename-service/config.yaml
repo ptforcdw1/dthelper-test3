@@ -1,0 +1,13 @@
+configs:
+  - id: rename-service-rule
+    config:
+      name: "rename-service-rule"
+      template: template.json
+      parameters:
+        serviceName: "Petclinic-Test"          # EDIT: new service display name (overrides server-name component)
+        processGroupMatch: "petclinic"          # EDIT: substring of process group name to match
+        ruleName: "Rename PetClinic service"   # EDIT: detection rule display name
+    type:
+      settings:
+        schema: builtin:service-detection.full-web-service
+        scope: environment

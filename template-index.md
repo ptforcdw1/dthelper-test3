@@ -36,3 +36,12 @@ Download all existing alert configs from Dynatrace — runs `monaco download` fo
 |---|---|---|
 | `schema` | Settings 2.0 schema to download | `builtin:davis.anomaly-detectors` |
 | `outputFolder` | subfolder under tasks/\<taskID\>/ to write downloaded configs | `output` |
+
+## rename-service
+Service detection rule that renames matching Tomcat/Java services — overrides the server-name component when a process group name matches a substring.
+
+| Parameter | Description | Default |
+|---|---|---|
+| `serviceName` | new service display name (replaces server-name component) | `Petclinic-Test` |
+| `processGroupMatch` | substring of process group name to match | `petclinic` |
+| `ruleName` | display name of the detection rule | `Rename PetClinic service` |
