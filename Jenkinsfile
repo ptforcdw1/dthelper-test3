@@ -116,7 +116,7 @@ environmentGroups:
                             script: """val=\$(grep 'outputFolder:' tasks/${params.TASK_ID}/config.yaml | awk '{print \$2}' | tr -d '"'); echo \${val:-output}""",
                             returnStdout: true
                         ).trim()
-                        sh "./monaco download --manifest manifest-run.yaml --environment ${params.TARGET_ENVIRONMENT} --specific-api ${schema} --output-folder tasks/${params.TASK_ID}/${outputFolder}"
+                        sh "./monaco download --manifest manifest-run.yaml --environment ${params.TARGET_ENVIRONMENT} --settings-schema ${schema} --output-folder tasks/${params.TASK_ID}/${outputFolder}"
                     }
                 }
                 archiveArtifacts artifacts: "tasks/${params.TASK_ID}/output/**/*", allowEmptyArchive: true
