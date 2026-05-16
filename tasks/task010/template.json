@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "config-item-title": "{{ .ruleTitle }}",
+  "send-to-storage": true,
+  "matchers": [
+    {
+      "attribute": "k8s.namespace.name",
+      "operator": "MATCHES",
+      "values": ["{{ .namespaceName }}"]
+    }
+  ]
+}
