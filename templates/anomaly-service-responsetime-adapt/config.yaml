@@ -1,0 +1,16 @@
+configs:
+  - id: anomaly-service-responsetime-adapt
+    config:
+      name: "anomaly-service-responsetime-adapt"
+      template: template.json
+      parameters:
+        degradationMs: 100              # EDIT: absolute median RT threshold (ms)
+        degradationPercent: 50          # EDIT: relative median RT threshold (% above baseline)
+        slowestDegradationMs: 1000      # EDIT: absolute slowest-10% RT threshold (ms)
+        slowestDegradationPercent: 100  # EDIT: relative slowest-10% RT threshold (% above baseline)
+        requestsPerMinute: 10           # EDIT: minimum traffic for alert (over-alerting protection)
+        minutesAbnormalState: 1         # EDIT: minutes the abnormal state must persist (1-60)
+    type:
+      settings:
+        schema: builtin:anomaly-detection.services
+        scope: "SERVICE-0000000000000000"   # EDIT: Dynatrace SERVICE entity ID (or "environment" for tenant-wide defaults)

@@ -1,0 +1,15 @@
+configs:
+  - id: anomaly-service-responsetime-fix
+    config:
+      name: "anomaly-service-responsetime-fix"
+      template: template.json
+      parameters:
+        degradationMs: 100              # EDIT: median RT threshold (ms, 5-min window)
+        slowestDegradationMs: 1000      # EDIT: slowest-10% RT threshold (ms, 5-min window)
+        requestsPerMinute: 10           # EDIT: minimum traffic for alert (over-alerting protection)
+        minutesAbnormalState: 1         # EDIT: minutes the abnormal state must persist (1-60)
+        sensitivity: "low"              # EDIT: alert sensitivity (low / medium / high)
+    type:
+      settings:
+        schema: builtin:anomaly-detection.services
+        scope: "SERVICE-0000000000000000"   # EDIT: Dynatrace SERVICE entity ID (or "environment" for tenant-wide defaults)

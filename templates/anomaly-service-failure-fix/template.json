@@ -1,0 +1,23 @@
+{
+  "responseTime": {
+    "enabled": false
+  },
+  "failureRate": {
+    "enabled": true,
+    "detectionMode": "fixed",
+    "fixedDetection": {
+      "threshold": {{ .thresholdPercent }},
+      "overAlertingProtection": {
+        "requestsPerMinute": {{ .requestsPerMinute }},
+        "minutesAbnormalState": {{ .minutesAbnormalState }}
+      },
+      "sensitivity": "{{ .sensitivity }}"
+    }
+  },
+  "loadDrops": {
+    "enabled": false
+  },
+  "loadSpikes": {
+    "enabled": false
+  }
+}

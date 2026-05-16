@@ -1,0 +1,23 @@
+{
+  "responseTime": {
+    "enabled": false
+  },
+  "failureRate": {
+    "enabled": true,
+    "detectionMode": "auto",
+    "autoDetection": {
+      "absoluteIncrease": {{ .absoluteIncreasePercent }},
+      "relativeIncrease": {{ .relativeIncreasePercent }},
+      "overAlertingProtection": {
+        "requestsPerMinute": {{ .requestsPerMinute }},
+        "minutesAbnormalState": {{ .minutesAbnormalState }}
+      }
+    }
+  },
+  "loadDrops": {
+    "enabled": false
+  },
+  "loadSpikes": {
+    "enabled": false
+  }
+}

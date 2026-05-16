@@ -1,0 +1,14 @@
+configs:
+  - id: anomaly-service-failure-fix
+    config:
+      name: "anomaly-service-failure-fix"
+      template: template.json
+      parameters:
+        thresholdPercent: 10            # EDIT: failure rate threshold (% of failing calls in any 5-min period)
+        requestsPerMinute: 10           # EDIT: minimum traffic for alert (over-alerting protection)
+        minutesAbnormalState: 1         # EDIT: minutes the abnormal state must persist (1-60)
+        sensitivity: "low"              # EDIT: alert sensitivity (low / medium / high)
+    type:
+      settings:
+        schema: builtin:anomaly-detection.services
+        scope: "SERVICE-0000000000000000"   # EDIT: Dynatrace SERVICE entity ID (or "environment" for tenant-wide defaults)

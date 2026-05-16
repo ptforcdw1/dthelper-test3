@@ -1,47 +1,44 @@
 # Template Index
 
-## log-ingest-k8s
-Kubernetes log ingestion — configures which namespace's logs to ingest into Dynatrace.
+## anomaly-service-responsetime-fix
+Service response time anomaly detection — fixed-threshold alerts on median RT and slowest-10% RT.
 
 | Parameter | Description | Default |
 |---|---|---|
-| `namespace` | target k8s namespace | `default` |
+| `degradationMs` | median RT threshold in ms (5-min window) | `100` |
+| `slowestDegradationMs` | slowest-10% RT threshold in ms (5-min window) | `1000` |
+| `requestsPerMinute` | minimum traffic before alerting | `10` |
+| `minutesAbnormalState` | minutes abnormal state must persist (1-60) | `1` |
+| `sensitivity` | alert sensitivity (`low` / `medium` / `high`) | `low` |
 
-## auto-tagging
-Automated ownership tagging — creates a team tag rule in Dynatrace.
-
-| Parameter | Description | Default |
-|---|---|---|
-| `teamName` | team display name | `POC Team` |
-| `identifier` | unique identifier (lowercase, no spaces) | `poc-team` |
-
-## update-windows
-Weekly maintenance update window — defines a recurring deployment window.
+## anomaly-service-responsetime-adapt
+Service response time anomaly detection — adaptive baseline alerts (both absolute ms and relative % must be exceeded).
 
 | Parameter | Description | Default |
 |---|---|---|
-| `windowName` | window display name | `POC Update Window` |
+| `degradationMs` | absolute median RT threshold (ms) | `100` |
+| `degradationPercent` | relative median RT threshold (% above baseline) | `50` |
+| `slowestDegradationMs` | absolute slowest-10% RT threshold (ms) | `1000` |
+| `slowestDegradationPercent` | relative slowest-10% RT threshold (% above baseline) | `100` |
+| `requestsPerMinute` | minimum traffic before alerting | `10` |
+| `minutesAbnormalState` | minutes abnormal state must persist (1-60) | `1` |
 
-## host-alerts
-Host CPU anomaly alerting — creates a Davis anomaly detector for host CPU.
-
-| Parameter | Description | Default |
-|---|---|---|
-| `alertTitle` | alert display title | `POC Host CPU Alert` |
-
-## get-alerts
-Download all existing alert configs from Dynatrace — runs `monaco download` for the given schema and archives results as a Jenkins artifact.
+## anomaly-service-failure-fix
+Service failure rate anomaly detection — fixed-threshold alerts when failure rate exceeds a percentage.
 
 | Parameter | Description | Default |
 |---|---|---|
-| `schema` | Settings 2.0 schema to download | `builtin:davis.anomaly-detectors` |
-| `outputFolder` | subfolder under tasks/\<taskID\>/ to write downloaded configs | `output` |
+| `thresholdPercent` | failure rate threshold (% of failing calls) | `10` |
+| `requestsPerMinute` | minimum traffic before alerting | `10` |
+| `minutesAbnormalState` | minutes abnormal state must persist (1-60) | `1` |
+| `sensitivity` | alert sensitivity (`low` / `medium` / `high`) | `low` |
 
-## rename-service
-Service detection rule that renames matching Tomcat/Java services — overrides the server-name component when a process group name matches a substring.
+## anomaly-service-failure-adapt
+Service failure rate anomaly detection — adaptive alerts (both absolute and relative increases must be exceeded).
 
 | Parameter | Description | Default |
 |---|---|---|
-| `serviceName` | new service display name (replaces server-name component) | `Petclinic-Test` |
-| `processGroupMatch` | substring of process group name to match | `petclinic` |
-| `ruleName` | display name of the detection rule | `Rename PetClinic service` |
+| `absoluteIncreasePercent` | absolute failure-rate increase threshold (%) | `0` |
+| `relativeIncreasePercent` | relative failure-rate increase threshold (% above baseline) | `50` |
+| `requestsPerMinute` | minimum traffic before alerting | `10` |
+| `minutesAbnormalState` | minutes abnormal state must persist (1-60) | `1` |
