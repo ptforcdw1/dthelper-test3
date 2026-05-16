@@ -20,7 +20,9 @@ Match the user's reply against template names case-insensitively. If the reply i
 
 ## Step 3 — Generate the next taskID
 
-Use PowerShell to list all subdirectories under `tasks/` whose names match the pattern `task` followed by digits (e.g. `task001`, `task002`). Find the highest number. The new taskID is that number + 1, zero-padded to 3 digits (e.g. if highest is `task002`, new is `task003`). If no matching directories exist, start at `task001`.
+Read `task-index.txt` (each line is `<taskID>:<template>:<created-datetime>`). Take the last line, parse the `taskNNN` value at the start, increment by 1, and zero-pad to 3 digits (e.g. last line starts with `task010` → new is `task011`). If the file is missing or empty, start at `task001`.
+
+Do **not** list `tasks/` to determine the next ID — `task-index.txt` is the source of truth.
 
 Show the user the generated taskID before proceeding.
 
@@ -71,16 +73,46 @@ For `app-specific` templates, also set the `appName` and `env` parameter values 
 
 Show the user the final state of config.yaml so they can confirm. The `name:` field in `config.yaml` should contain the templated string (e.g. `"[{{ .appName }}-{{ .env }}] {{ .serviceName }} ..."`) — do **not** pre-resolve it; Monaco resolves it at deploy time.
 
-## Step 8 — Commit to git
+## Step 8 — Append to task-index.txt
+
+Append a single line to `task-index.txt` in the format:
+
+```
+<taskID>:<chosen-template>:<ISO-8601 datetime>
+```
+
+Use the current local datetime in ISO 8601 with timezone offset (e.g. `2026-05-17T14:32:10+07:00`).
+
+**Important — guard against a missing trailing newline.** `PowerShell`'s `Add-Content` does not insert a leading newline, so if the previous last line lacks one, the new entry gets concatenated onto it. Use this PowerShell snippet (or equivalent logic) so the result is robust either way:
+
+```powershell
+$ts = (Get-Date).ToString("yyyy-MM-ddTHH:mm:sszzz")
+$line = "<taskID>:<chosen-template>:$ts"
+$path = "task-index.txt"
+# Read raw bytes to detect a trailing newline without stripping
+$needsLeadingNewline = $false
+if (Test-Path $path) {
+    $raw = [System.IO.File]::ReadAllText($path)
+    if ($raw.Length -gt 0 -and -not ($raw.EndsWith("`n") -or $raw.EndsWith("`r`n"))) {
+        $needsLeadingNewline = $true
+    }
+}
+$toAppend = if ($needsLeadingNewline) { "`n$line`n" } else { "$line`n" }
+[System.IO.File]::AppendAllText($path, $toAppend)
+```
+
+After appending, verify the new line is on its own line (e.g. `Get-Content task-index.txt | Select-Object -Last 1` should equal the new entry exactly).
+
+## Step 9 — Commit to git
 
 Run these commands:
 ```
-git add tasks/<taskID>/
+git add tasks/<taskID>/ task-index.txt
 git commit -m "Add <taskID>: <chosen-template> task"
 git push origin main
 ```
 
-## Step 9 — Advise the user
+## Step 10 — Advise the user
 
 Tell the user:
 - Their taskID
