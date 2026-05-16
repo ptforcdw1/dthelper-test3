@@ -1,0 +1,18 @@
+configs:
+  - id: anomaly-service-responsetime-fix
+    config:
+      name: "[{{ .appName }}-{{ .env }}] {{ .serviceName }} response time fixed"
+      template: template.json
+      parameters:
+        appName: "petclinic"            # EDIT: application name (used in config name prefix)
+        env: "dev"                      # EDIT: environment (used in config name prefix)
+        serviceName: "Tomcat/localhost" # EDIT: human-readable service name (used in config name)
+        degradationMs: 50               # EDIT: median RT threshold (ms, 5-min window)
+        slowestDegradationMs: 1000      # EDIT: slowest-10% RT threshold (ms, 5-min window)
+        requestsPerMinute: 5            # EDIT: minimum traffic for alert (over-alerting protection)
+        minutesAbnormalState: 1         # EDIT: minutes the abnormal state must persist (1-60)
+        sensitivity: "low"              # EDIT: alert sensitivity (low / medium / high)
+    type:
+      settings:
+        schema: builtin:anomaly-detection.services
+        scope: "RESOLVE_FROM_SERVICE_NAME"  # Filled in by scripts/resolve.py at deploy time using the serviceName parameter above.
