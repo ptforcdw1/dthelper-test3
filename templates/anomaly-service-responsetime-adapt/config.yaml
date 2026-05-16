@@ -1,9 +1,12 @@
 configs:
   - id: anomaly-service-responsetime-adapt
     config:
-      name: "anomaly-service-responsetime-adapt"
+      name: "[{{ .appName }}-{{ .env }}] {{ .serviceName }} response time adaptive"
       template: template.json
       parameters:
+        appName: "myapp"                # EDIT: application name (used in config name prefix)
+        env: "prod"                     # EDIT: environment (used in config name prefix)
+        serviceName: "myservice"        # EDIT: human-readable service name (used in config name)
         degradationMs: 100              # EDIT: absolute median RT threshold (ms)
         degradationPercent: 50          # EDIT: relative median RT threshold (% above baseline)
         slowestDegradationMs: 1000      # EDIT: absolute slowest-10% RT threshold (ms)

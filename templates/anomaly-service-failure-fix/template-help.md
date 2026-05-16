@@ -5,11 +5,16 @@ Service failure rate anomaly detection using a **fixed threshold**. Alerts when 
 **Schema:** `builtin:anomaly-detection.services` (version 0.0.19 at the time this template was generated)
 **Scope:** placeholder `SERVICE-0000000000000000` (edit `config.yaml` — set to a real Dynatrace SERVICE entity ID, or `environment` for tenant-wide defaults)
 **Max objects per scope target:** 1
+**Level:** app-specific
+**Name template:** `[<AppName>-<Env>] <serviceName> failure rate fixed`
 
 ## Parameters
 
 | Parameter | Type | Default | Controls |
 |---|---|---|---|
+| `appName` | string | `myapp` | Application name used in the `[<AppName>-<Env>]` config-name prefix. Asked for by `/new-task`. |
+| `env` | string | `prod` | Environment (e.g. `prod`, `staging`) used in the prefix. Asked for by `/new-task`. |
+| `serviceName` | string | `myservice` | Human-readable service name shown in the config name. Does **not** affect targeting — that's `scope`. |
 | `thresholdPercent` | float (%) | `10` | Alert if the failure rate exceeds this percentage during any 5-minute period. Schema default is `0` (alert on any failure); `10` is used here as a more practical starting point. |
 | `requestsPerMinute` | float | `10` | Over-alerting protection — only alert when the service receives at least this many requests per minute. |
 | `minutesAbnormalState` | integer (1-60) | `1` | Only alert if the abnormal state persists for at least this many minutes. |

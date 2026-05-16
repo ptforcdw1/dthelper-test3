@@ -1,9 +1,12 @@
 configs:
   - id: anomaly-service-failure-fix
     config:
-      name: "anomaly-service-failure-fix"
+      name: "[{{ .appName }}-{{ .env }}] {{ .serviceName }} failure rate fixed"
       template: template.json
       parameters:
+        appName: "myapp"                # EDIT: application name (used in config name prefix)
+        env: "prod"                     # EDIT: environment (used in config name prefix)
+        serviceName: "myservice"        # EDIT: human-readable service name (used in config name)
         thresholdPercent: 10            # EDIT: failure rate threshold (% of failing calls in any 5-min period)
         requestsPerMinute: 10           # EDIT: minimum traffic for alert (over-alerting protection)
         minutesAbnormalState: 1         # EDIT: minutes the abnormal state must persist (1-60)

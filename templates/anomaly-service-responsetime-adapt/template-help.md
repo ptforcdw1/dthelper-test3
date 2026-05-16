@@ -5,11 +5,16 @@ Service response time anomaly detection using **adaptive (auto) thresholds**. Dy
 **Schema:** `builtin:anomaly-detection.services` (version 0.0.19 at the time this template was generated)
 **Scope:** placeholder `SERVICE-0000000000000000` (edit `config.yaml` — set to a real Dynatrace SERVICE entity ID, or `environment` for tenant-wide defaults)
 **Max objects per scope target:** 1
+**Level:** app-specific
+**Name template:** `[<AppName>-<Env>] <serviceName> response time adaptive`
 
 ## Parameters
 
 | Parameter | Type | Default | Controls |
 |---|---|---|---|
+| `appName` | string | `myapp` | Application name used in the `[<AppName>-<Env>]` config-name prefix. Asked for by `/new-task`. |
+| `env` | string | `prod` | Environment (e.g. `prod`, `staging`) used in the prefix. Asked for by `/new-task`. |
+| `serviceName` | string | `myservice` | Human-readable service name shown in the config name. Does **not** affect targeting — that's `scope`. |
 | `degradationMs` | float (ms) | `100` | Absolute median-RT threshold. Together with `degradationPercent`, both must be exceeded to alert. |
 | `degradationPercent` | float (%) | `50` | Relative median-RT threshold above the learned baseline. |
 | `slowestDegradationMs` | float (ms) | `1000` | Absolute slowest-10% RT threshold. Together with `slowestDegradationPercent`, both must be exceeded to alert. |

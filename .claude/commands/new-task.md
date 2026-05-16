@@ -4,17 +4,19 @@ Create a new Monaco task from a template and commit it to git. Follow every step
 
 ## Step 1 — Read the template index
 
-Read `template-index.md`. Parse every `## <name>` heading as an available template name. For each template, also parse the parameter table rows (columns: Parameter, Description, Default) — you will need these in Step 6.
+Read `template-index.md`. For every `## <name>` heading, parse the section into a metadata record:
+- `name` (the heading text)
+- `level` — `app-specific` or `global` (from the `- **Level:** ...` line)
+- `nameTemplate` — the backtick-quoted string on the `- **Name template:** ...` line (only present for some templates)
+- `description` — the remaining bullet (the one-line summary)
+
+**Do not** read `template-param.md` yet — parameters are loaded in Step 5 only for the chosen template.
 
 ## Step 2 — Ask the user which task type to create
 
-AskUserQuestion allows a maximum of 4 options per question. Present templates in pages of 3, with a "More →" option as the 4th slot when there are remaining templates. Repeat until the user picks an actual template name.
+List every template as plain text in chat — one bullet per template, using the template's description line. Do **not** use AskUserQuestion. Ask: "Which task template do you want to use?" and wait for the user's free-text reply.
 
-Example with 5 templates (A, B, C, D, E):
-- Page 1: options = [A, B, C, "More →"]. If user picks "More →" → Page 2.
-- Page 2: options = [D, E] (no "More →" needed — fewer than 4 remain).
-
-Use the template's description line as each option's description. Ask: "Which task template do you want to use?"
+Match the user's reply against template names case-insensitively. If the reply is ambiguous or doesn't match any template, ask again. Do not proceed until you have a single concrete template name.
 
 ## Step 3 — Generate the next taskID
 
@@ -31,7 +33,9 @@ Use PowerShell to:
 
 ## Step 5 — Load parameter definitions
 
-From the data already parsed in Step 1, extract the parameter rows for the chosen template. Each row gives you: parameter name, description, and default value. No file reads needed.
+Read `template-param.md`. Find the `## <chosen-template>` section and parse its table rows (columns: Parameter, Description, Default).
+
+`appName` and `env` are **not** in `template-param.md` for `app-specific` templates — they are implicit and handled in Step 6.
 
 ## Step 6 — Ask the user for each parameter value
 
@@ -42,11 +46,19 @@ For each parameter from Step 5, ask the user for a value. Show:
 
 Ask all parameters in a single AskUserQuestion call where possible (up to 4 at a time). If there are more than 4, ask in batches.
 
+**Additionally, if the chosen template's `level` is `app-specific`**, ask the user for two extra implicit values in the same flow:
+- `appName` — application name for the `[<AppName>-<Env>]` config-name prefix (no default — user must provide)
+- `env` — environment (e.g. `prod`, `staging`, `dev`) for the same prefix
+
+Skip these two if `level` is `global`.
+
 ## Step 7 — Update config.yaml with the provided values
 
 Use Edit to replace each parameter's default value in `tasks/<taskID>/config.yaml` with the value the user provided. Preserve the `# EDIT:` comment on the line.
 
-Show the user the final state of config.yaml and template.json so they can confirm.
+For `app-specific` templates, also set the `appName` and `env` parameter values in `config.yaml` — they appear as the first two `parameters:` rows in templates that follow the convention.
+
+Show the user the final state of config.yaml and template.json so they can confirm. The `name:` field in `config.yaml` should contain the templated string (e.g. `"[{{ .appName }}-{{ .env }}] {{ .serviceName }} ..."`) — do **not** pre-resolve it; Monaco resolves it at deploy time.
 
 ## Step 8 — Commit to git
 

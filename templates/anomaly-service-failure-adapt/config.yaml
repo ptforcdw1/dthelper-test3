@@ -1,9 +1,12 @@
 configs:
   - id: anomaly-service-failure-adapt
     config:
-      name: "anomaly-service-failure-adapt"
+      name: "[{{ .appName }}-{{ .env }}] {{ .serviceName }} failure rate adaptive"
       template: template.json
       parameters:
+        appName: "myapp"                # EDIT: application name (used in config name prefix)
+        env: "prod"                     # EDIT: environment (used in config name prefix)
+        serviceName: "myservice"        # EDIT: human-readable service name (used in config name)
         absoluteIncreasePercent: 0      # EDIT: absolute failure-rate increase threshold (%)
         relativeIncreasePercent: 50     # EDIT: relative failure-rate increase threshold (% above baseline)
         requestsPerMinute: 10           # EDIT: minimum traffic for alert (over-alerting protection)
