@@ -1,0 +1,28 @@
+{
+  "responseTime": {
+    "enabled": true,
+    "detectionMode": "fixed",
+    "fixedDetection": {
+      "responseTimeAll": {
+        "degradationMilliseconds": {{ .degradationMs }}
+      },
+      "responseTimeSlowest": {
+        "slowestDegradationMilliseconds": {{ .slowestDegradationMs }}
+      },
+      "overAlertingProtection": {
+        "requestsPerMinute": {{ .requestsPerMinute }},
+        "minutesAbnormalState": {{ .minutesAbnormalState }}
+      },
+      "sensitivity": "{{ .sensitivity }}"
+    }
+  },
+  "failureRate": {
+    "enabled": false
+  },
+  "loadDrops": {
+    "enabled": false
+  },
+  "loadSpikes": {
+    "enabled": false
+  }
+}

@@ -1,0 +1,18 @@
+configs:
+  - id: anomaly-service-responsetime-fix
+    config:
+      name: "[{{ .appName }}-{{ .env }}] {{ .serviceName }} response time fixed"
+      template: template.json
+      parameters:
+        appName: "petclinic"            # EDIT: application name (used in config name prefix)
+        env: "prod"                     # EDIT: environment (used in config name prefix)
+        serviceName: "myservice"        # EDIT: human-readable service name (used in config name)
+        degradationMs: 100              # EDIT: median RT threshold (ms, 5-min window)
+        slowestDegradationMs: 150       # EDIT: slowest-10% RT threshold (ms, 5-min window)
+        requestsPerMinute: 10           # EDIT: minimum traffic for alert (over-alerting protection)
+        minutesAbnormalState: 1         # EDIT: minutes the abnormal state must persist (1-60)
+        sensitivity: "low"              # EDIT: alert sensitivity (low / medium / high)
+    type:
+      settings:
+        schema: builtin:anomaly-detection.services
+        scope: "SERVICE-9D69AEB4F46435EC"   # EDIT: Dynatrace SERVICE entity ID (or "environment" for tenant-wide defaults)
