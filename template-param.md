@@ -39,12 +39,3 @@ Single source of truth for prompts and defaults is `templates/anomaly-service-re
 | `minutesAbnormalState` | How many minutes the threshold must be exceeded before alerting (1-60). | `1` |
 | `sensitivity` | Alert sensitivity: `low`, `medium`, or `high`. | `low` |
 
-## anomaly-service-failure-adapt
-
-| Parameter | Description | Default |
-|---|---|---|
-| `serviceName` | Which Dynatrace service to monitor (display name in Dynatrace, e.g. `Tomcat/localhost`). | `myservice` |
-| `absoluteIncreasePercent` | Absolute increase in failure rate (%) that triggers an alert. | `0` |
-| `relativeIncreasePercent` | Failure-rate increase relative to baseline (%) that triggers an alert. | `50` |
-| `requestsPerMinute` | Minimum traffic (requests/min) before alerting fires. | `10` |
-| `minutesAbnormalState` | How many minutes the threshold must be exceeded before alerting (1-60). | `1` |

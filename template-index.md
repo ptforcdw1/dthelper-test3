@@ -24,8 +24,3 @@ One section per template. Lists `Level` (`app-specific` or `global`), `Name temp
 - **Level:** app-specific
 - **Name template:** `[<AppName>-<Env>] <serviceName> failure rate fixed`
 - Service failure rate anomaly detection — fixed-threshold alerts when failure rate exceeds a percentage.
-
-## anomaly-service-failure-adapt
-- **Level:** app-specific
-- **Name template:** `[<AppName>-<Env>] <serviceName> failure rate adaptive`
-- Service failure rate anomaly detection — adaptive alerts (both absolute and relative increases must be exceeded).
