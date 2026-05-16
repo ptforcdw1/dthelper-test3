@@ -1,3 +1,0 @@
-{
-  "_info": "task_type:download — no JSON payload template required. Monaco download writes output to the folder specified by outputFolder in config.yaml."
-}

@@ -1,4 +1,0 @@
-task_type: download
-parameters:
-  schema: "builtin:davis.anomaly-detectors"    # EDIT: Settings 2.0 schema to download
-  outputFolder: "output"                        # EDIT: subfolder (under tasks/<taskID>/) for downloaded configs
