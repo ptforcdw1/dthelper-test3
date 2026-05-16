@@ -9,5 +9,5 @@ services:
     ports:
       - "8090:8080"
     environment:
-      - JAVA_TOOL_OPTIONS=-agentpath:/opt/dynatrace/oneagent/agent/lib64/liboneagentproc.so
+      - JAVA_TOOL_OPTIONS=-agentpath:/opt/dynatrace/oneagent/agent/lib64/liboneagentloader.so
     restart: unless-stopped

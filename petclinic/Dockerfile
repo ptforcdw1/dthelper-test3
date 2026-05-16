@@ -17,11 +17,11 @@ RUN apk add --no-cache curl unzip && \
       -o /tmp/oneagent.zip && \
     unzip -q /tmp/oneagent.zip -d /opt/dynatrace/oneagent
 
-# Stage 3: Final runtime image
-FROM eclipse-temurin:21-jre-alpine
+# Stage 3: Final runtime image — must use glibc (Dynatrace agent is incompatible with musl/Alpine)
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 COPY --from=build /build/target/spring-petclinic-*.jar app.jar
 COPY --from=oneagent /opt/dynatrace/oneagent /opt/dynatrace/oneagent
-ENV JAVA_TOOL_OPTIONS="-agentpath:/opt/dynatrace/oneagent/agent/lib64/liboneagentproc.so"
+ENV JAVA_TOOL_OPTIONS="-agentpath:/opt/dynatrace/oneagent/agent/lib64/liboneagentloader.so"
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
