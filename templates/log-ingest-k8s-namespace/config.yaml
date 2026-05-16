@@ -1,0 +1,14 @@
+configs:
+  - id: log-ingest-k8s-namespace
+    config:
+      name: "[{{ .appName }}-{{ .env }}] log ingest - {{ .namespaceName }} namespace"
+      template: template.json
+      parameters:
+        appName: "myapp"                          # EDIT: application name (used in config name prefix)
+        env: "prod"                               # EDIT: environment (used in config name prefix)
+        namespaceName: "my-namespace"             # EDIT: Kubernetes namespace name to match (writes to matchers[0].values[0])
+        ruleTitle: "Ingest logs from k8s namespace"  # EDIT: rule title shown in Dynatrace UI (config-item-title)
+    type:
+      settings:
+        schema: builtin:logmonitoring.log-storage-settings
+        scope: environment

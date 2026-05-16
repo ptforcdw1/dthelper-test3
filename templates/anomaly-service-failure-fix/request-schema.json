@@ -1,0 +1,62 @@
+{
+    "_comment": "ITSM input contract. resolve.py and /new-task both read this. Distinct from schema.json (Dynatrace Settings 2.0 schema).",
+    "params": {
+        "appName": {
+            "type": "string",
+            "required": true,
+            "prompt": "Which application is this alert for? (used in the alert name prefix)",
+            "description": "Application name."
+        },
+        "env": {
+            "type": "string",
+            "required": true,
+            "enum": ["prod", "staging", "dev"],
+            "prompt": "Which environment? (prod / staging / dev)",
+            "description": "Environment label used in the alert name prefix."
+        },
+        "serviceName": {
+            "type": "string",
+            "required": true,
+            "prompt": "Which Dynatrace service do you want to monitor? (use the display name shown in Dynatrace, e.g. 'Tomcat/localhost')",
+            "description": "Dynatrace service display name. Resolved to SERVICE-xxx by resolve.py.",
+            "lookup": {
+                "entityType": "SERVICE",
+                "writeTo": "type.settings.scope"
+            }
+        },
+        "thresholdPercent": {
+            "type": "integer",
+            "min": 1,
+            "max": 100,
+            "default": 10,
+            "suggested": true,
+            "prompt": "Alert when failure rate (% of failing calls) exceeds this value. Default 10.",
+            "description": "Failure rate threshold."
+        },
+        "requestsPerMinute": {
+            "type": "integer",
+            "min": 1,
+            "default": 10,
+            "suggested": true,
+            "prompt": "Minimum traffic in requests/min before alerting kicks in. Default 10.",
+            "description": "Minimum traffic before alerting fires."
+        },
+        "minutesAbnormalState": {
+            "type": "integer",
+            "min": 1,
+            "max": 60,
+            "default": 1,
+            "suggested": true,
+            "prompt": "How many minutes must the threshold be exceeded before alerting? (1-60, default 1)",
+            "description": "How long the abnormal state must persist."
+        },
+        "sensitivity": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "default": "low",
+            "suggested": true,
+            "prompt": "Alert sensitivity — low / medium / high? (default low)",
+            "description": "Alert sensitivity."
+        }
+    }
+}

@@ -1,0 +1,77 @@
+{
+    "_comment": "ITSM input contract. resolve.py and /new-task both read this. Distinct from schema.json (Dynatrace Settings 2.0 schema).",
+    "params": {
+        "appName": {
+            "type": "string",
+            "required": true,
+            "prompt": "Which application is this alert for? (used in the alert name prefix)",
+            "description": "Application name."
+        },
+        "env": {
+            "type": "string",
+            "required": true,
+            "enum": ["prod", "staging", "dev"],
+            "prompt": "Which environment? (prod / staging / dev)",
+            "description": "Environment label used in the alert name prefix."
+        },
+        "serviceName": {
+            "type": "string",
+            "required": true,
+            "prompt": "Which Dynatrace service do you want to monitor? (use the display name shown in Dynatrace, e.g. 'Tomcat/localhost')",
+            "description": "Dynatrace service display name. Resolved to SERVICE-xxx by resolve.py.",
+            "lookup": {
+                "entityType": "SERVICE",
+                "writeTo": "type.settings.scope"
+            }
+        },
+        "degradationMs": {
+            "type": "integer",
+            "min": 1,
+            "default": 100,
+            "suggested": true,
+            "prompt": "Absolute median response time threshold in ms (alert fires when BOTH this and degradationPercent are exceeded). Default 100.",
+            "description": "Absolute median RT threshold."
+        },
+        "degradationPercent": {
+            "type": "integer",
+            "min": 1,
+            "default": 50,
+            "suggested": true,
+            "prompt": "Relative median response time threshold as % above the learned baseline. Default 50.",
+            "description": "Relative median RT threshold."
+        },
+        "slowestDegradationMs": {
+            "type": "integer",
+            "min": 1,
+            "default": 1000,
+            "suggested": true,
+            "prompt": "Absolute slowest-10% response time threshold in ms. Default 1000.",
+            "description": "Absolute slowest-10% RT threshold."
+        },
+        "slowestDegradationPercent": {
+            "type": "integer",
+            "min": 1,
+            "default": 100,
+            "suggested": true,
+            "prompt": "Relative slowest-10% response time threshold as % above baseline. Default 100.",
+            "description": "Relative slowest-10% RT threshold."
+        },
+        "requestsPerMinute": {
+            "type": "integer",
+            "min": 1,
+            "default": 10,
+            "suggested": true,
+            "prompt": "Minimum traffic in requests/min before alerting kicks in. Default 10.",
+            "description": "Minimum traffic before alerting fires."
+        },
+        "minutesAbnormalState": {
+            "type": "integer",
+            "min": 1,
+            "max": 60,
+            "default": 1,
+            "suggested": true,
+            "prompt": "How many minutes must the threshold be exceeded before alerting? (1-60, default 1)",
+            "description": "How long the abnormal state must persist."
+        }
+    }
+}

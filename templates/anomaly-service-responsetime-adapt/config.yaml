@@ -16,4 +16,4 @@ configs:
     type:
       settings:
         schema: builtin:anomaly-detection.services
-        scope: "SERVICE-0000000000000000"   # EDIT: Dynatrace SERVICE entity ID (or "environment" for tenant-wide defaults)
+        scope: "RESOLVE_FROM_SERVICE_NAME"  # Filled in by scripts/resolve.py at deploy time using the serviceName parameter above.

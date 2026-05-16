@@ -39,3 +39,10 @@ Single source of truth for prompts and defaults is `templates/anomaly-service-re
 | `minutesAbnormalState` | How many minutes the threshold must be exceeded before alerting (1-60). | `1` |
 | `sensitivity` | Alert sensitivity: `low`, `medium`, or `high`. | `low` |
 
+## log-ingest-k8s-namespace
+
+| Parameter | Description | Default |
+|---|---|---|
+| `namespaceName` | Kubernetes namespace to match. Written into the rule's `matchers[0].values[0]`; `matchers[0].attribute` is hardcoded to `k8s.namespace.name`. | `my-namespace` |
+| `ruleTitle` | Rule name shown in the Dynatrace UI (written into `config-item-title`). | `Ingest logs from k8s namespace` |
+

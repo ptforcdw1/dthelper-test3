@@ -24,3 +24,8 @@ One section per template. Lists `Level` (`app-specific` or `global`), `Name temp
 - **Level:** app-specific
 - **Name template:** `[<AppName>-<Env>] <serviceName> failure rate fixed`
 - Service failure rate anomaly detection — fixed-threshold alerts when failure rate exceeds a percentage.
+
+## log-ingest-k8s-namespace
+- **Level:** app-specific
+- **Name template:** `[<AppName>-<Env>] log ingest - <namespaceName> namespace`
+- Log ingest rule that stores logs from a specific Kubernetes namespace (matches k8s.namespace.name).

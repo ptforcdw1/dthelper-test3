@@ -1,0 +1,31 @@
+{
+    "_comment": "ITSM input contract. resolve.py and /new-task both read this. Distinct from schema.json (Dynatrace Settings 2.0 schema).",
+    "params": {
+        "appName": {
+            "type": "string",
+            "required": true,
+            "prompt": "Which application is this log ingest rule for? (used in the config name prefix)",
+            "description": "Application name."
+        },
+        "env": {
+            "type": "string",
+            "required": true,
+            "enum": ["prod", "staging", "dev"],
+            "prompt": "Which environment? (prod / staging / dev)",
+            "description": "Environment label used in the config name prefix."
+        },
+        "namespaceName": {
+            "type": "string",
+            "required": true,
+            "prompt": "Which Kubernetes namespace should this rule match? (e.g. 'kube-system', 'petclinic-dev'). Becomes matchers[0].values[0] in template.json.",
+            "description": "Kubernetes namespace to match. Written as matchers[0].values[0]; matchers[0].attribute is hardcoded to k8s.namespace.name."
+        },
+        "ruleTitle": {
+            "type": "string",
+            "default": "Ingest logs from k8s namespace",
+            "suggested": true,
+            "prompt": "Rule name shown in the Dynatrace UI? (default: 'Ingest logs from k8s namespace')",
+            "description": "Rule name displayed in Dynatrace (written into config-item-title)."
+        }
+    }
+}
