@@ -68,7 +68,6 @@ def dt_get(env_url: str, path: str, token: str) -> dict:
 def lookup_entity(env_url: str, token: str, entity_type: str, name: str) -> str:
     qs = urllib.parse.urlencode({
         "entitySelector": f'type("{entity_type}"),entityName.equals("{name}")',
-        "fields": "displayName",
         "pageSize": 50,
     })
     data = dt_get(env_url, f"/api/v2/entities?{qs}", token)
