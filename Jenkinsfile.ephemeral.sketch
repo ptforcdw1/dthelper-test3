@@ -1,0 +1,251 @@
+// ============================================================================
+// SKETCH — NOT WIRED UP YET
+// Ephemeral-task pipeline driven by ITSM intake.
+//
+// Flow:
+//   ITSM ticket (template name + human-readable params)
+//     -> Jenkins build (this pipeline)
+//     -> render template into workspace-only tasks/<build-id>/
+//     -> resolve names to Dynatrace IDs
+//     -> validate
+//     -> Monaco deploy
+//     -> comment back on ITSM ticket
+//
+// Nothing under tasks/ is committed to git. Audit lives in:
+//   - ITSM ticket (request, approval, requester)
+//   - Jenkins build (rendered config.yaml archived as artifact, full logs)
+//   - Dynatrace (settings history + originObjectId tagged with ticket ID)
+// ============================================================================
+
+pipeline {
+    agent any
+
+    parameters {
+        // In production these arrive from ITSM (ServiceNow / JSM webhook
+        // payload), not typed by a human. Kept as Jenkins params here so the
+        // job can also be re-run manually for debugging.
+        string(
+            name: 'TEMPLATE_NAME',
+            defaultValue: '',
+            description: 'Subdirectory under templates/ (e.g. "anomaly-service-responsetime-fix").'
+        )
+        text(
+            name: 'PARAMS_YAML',
+            defaultValue: '',
+            description: '''Human-readable parameters as YAML. Example:
+appName: petclinic
+env: prod
+serviceName: Tomcat/localhost
+degradationMs: 100
+slowestDegradationMs: 150
+'''
+        )
+        string(
+            name: 'ITSM_TICKET_ID',
+            defaultValue: '',
+            description: 'ITSM ticket ID — used in originObjectId and for callback comments.'
+        )
+        string(
+            name: 'TARGET_ENVIRONMENT',
+            defaultValue: 'ylq89164',
+            description: 'Target Dynatrace environment.'
+        )
+        booleanParam(
+            name: 'SKIP_DEPLOY',
+            defaultValue: false,
+            description: 'Dry-run only — skip actual deployment.'
+        )
+    }
+
+    environment {
+        MONACO_VERSION = '2.28.7'
+        TASK_DIR       = "tasks/build-${BUILD_NUMBER}"
+    }
+
+    stages {
+        // --------------------------------------------------------------------
+        // 1. Pick the template + scaffold an ephemeral task dir
+        // --------------------------------------------------------------------
+        stage('Select Template') {
+            steps {
+                script {
+                    if (!params.TEMPLATE_NAME?.trim()) {
+                        error 'TEMPLATE_NAME is required.'
+                    }
+                    if (!fileExists("templates/${params.TEMPLATE_NAME}/config.yaml")) {
+                        error "Unknown template: ${params.TEMPLATE_NAME}"
+                    }
+                    sh """
+                        mkdir -p ${TASK_DIR}
+                        cp templates/${params.TEMPLATE_NAME}/config.yaml   ${TASK_DIR}/config.yaml
+                        cp templates/${params.TEMPLATE_NAME}/template.json ${TASK_DIR}/template.json
+                    """
+                }
+            }
+        }
+
+        // --------------------------------------------------------------------
+        // 2. Parse ITSM input into a structured params map
+        // --------------------------------------------------------------------
+        stage('Parse Input') {
+            steps {
+                script {
+                    writeFile file: "${TASK_DIR}/input.yaml", text: params.PARAMS_YAML
+                    // readYaml needs the pipeline-utility-steps plugin
+                    env.RAW_PARAMS = readYaml(file: "${TASK_DIR}/input.yaml")?.toString() ?: '{}'
+                    echo "Raw params: ${env.RAW_PARAMS}"
+                }
+            }
+        }
+
+        // --------------------------------------------------------------------
+        // 3. Resolve human-readable names -> Dynatrace IDs
+        //    (e.g. serviceName "Tomcat/localhost" -> SERVICE-9D69AEB4F46435EC)
+        // --------------------------------------------------------------------
+        stage('Resolve Names to IDs') {
+            steps {
+                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
+                    sh """
+                        python3 scripts/resolve.py \\
+                            --template ${params.TEMPLATE_NAME} \\
+                            --input    ${TASK_DIR}/input.yaml \\
+                            --out      ${TASK_DIR}/resolved.yaml \\
+                            --env-url  https://${params.TARGET_ENVIRONMENT}.live.dynatrace.com
+                    """
+                }
+                // resolve.py is responsible for:
+                //  - reading templates/<name>/schema.json to know which fields
+                //    are name-typed and need lookup (serviceName, hostName, ...)
+                //  - calling /api/v2/entities for each name lookup
+                //  - failing with a clear message if 0 or >1 match
+                //  - writing resolved.yaml with both the original name AND the
+                //    resolved ID so logs are debuggable
+            }
+        }
+
+        // --------------------------------------------------------------------
+        // 4. Validate resolved params against the template's schema
+        // --------------------------------------------------------------------
+        stage('Validate Params') {
+            steps {
+                sh """
+                    python3 scripts/validate.py \\
+                        --schema   templates/${params.TEMPLATE_NAME}/schema.json \\
+                        --resolved ${TASK_DIR}/resolved.yaml
+                """
+                // validate.py checks:
+                //  - required params present
+                //  - numeric ranges (e.g. minutesAbnormalState 1-60)
+                //  - enum values (sensitivity in low/medium/high)
+                //  - any cross-field rules (e.g. slowestDegradationMs > degradationMs)
+            }
+        }
+
+        // --------------------------------------------------------------------
+        // 5. Render the resolved values into the task's config.yaml
+        // --------------------------------------------------------------------
+        stage('Render Config') {
+            steps {
+                sh """
+                    python3 scripts/render.py \\
+                        --config   ${TASK_DIR}/config.yaml \\
+                        --resolved ${TASK_DIR}/resolved.yaml \\
+                        --ticket   ${params.ITSM_TICKET_ID}
+                """
+                // render.py:
+                //  - substitutes parameter values into config.yaml
+                //  - injects the ITSM ticket ID into originObjectId so the
+                //    setting in Dynatrace is traceable back to the request
+                archiveArtifacts artifacts: "${TASK_DIR}/**", allowEmptyArchive: false
+                // ^ this is the audit record: the *exact* config that was deployed.
+            }
+        }
+
+        // --------------------------------------------------------------------
+        // 6. Monaco — install, dry-run, deploy
+        //    (same as the existing Jenkinsfile, just pointed at TASK_DIR)
+        // --------------------------------------------------------------------
+        stage('Setup Monaco') {
+            steps {
+                sh """
+                    BIN="monaco-\${MONACO_VERSION}"
+                    if [ ! -f "\$BIN" ]; then
+                        curl -fsSL -o "\$BIN" https://github.com/dynatrace-oss/dynatrace-monitoring-as-code/releases/download/v\${MONACO_VERSION}/monaco-linux-amd64
+                        chmod +x "\$BIN"
+                    fi
+                    ln -sf "\$BIN" monaco
+                """
+            }
+        }
+
+        stage('Prepare Manifest') {
+            steps {
+                writeFile file: 'manifest-run.yaml', text: """\
+manifestVersion: "1.0"
+projects:
+  - name: build-${BUILD_NUMBER}
+    path: ${TASK_DIR}
+environmentGroups:
+  - name: production
+    environments:
+      - name: ${params.TARGET_ENVIRONMENT}
+        url:
+          value: https://${params.TARGET_ENVIRONMENT}.live.dynatrace.com
+        auth:
+          token:
+            name: DT_API_TOKEN
+"""
+            }
+        }
+
+        stage('Dry Run') {
+            steps {
+                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
+                    sh './monaco deploy manifest-run.yaml --dry-run'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when { expression { return !params.SKIP_DEPLOY } }
+            steps {
+                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
+                    sh './monaco deploy manifest-run.yaml'
+                }
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // 7. ITSM callback + workspace cleanup
+    // ------------------------------------------------------------------------
+    post {
+        success {
+            script {
+                if (params.ITSM_TICKET_ID?.trim()) {
+                    sh """
+                        python3 scripts/itsm_comment.py \\
+                            --ticket  ${params.ITSM_TICKET_ID} \\
+                            --status  success \\
+                            --build   ${BUILD_URL}
+                    """
+                }
+            }
+        }
+        failure {
+            script {
+                if (params.ITSM_TICKET_ID?.trim()) {
+                    sh """
+                        python3 scripts/itsm_comment.py \\
+                            --ticket  ${params.ITSM_TICKET_ID} \\
+                            --status  failure \\
+                            --build   ${BUILD_URL}
+                    """
+                }
+            }
+        }
+        always {
+            cleanWs(patterns: [[pattern: 'tasks/build-*', type: 'INCLUDE']])
+        }
+    }
+}

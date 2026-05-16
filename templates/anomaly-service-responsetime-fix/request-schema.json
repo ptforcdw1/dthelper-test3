@@ -1,0 +1,74 @@
+{
+    "_comment": "ITSM input contract. resolve.py and /new-task both read this. Distinct from schema.json (Dynatrace Settings 2.0 schema).",
+    "_flags": {
+        "required": "user MUST provide a value (no default)",
+        "suggested": "ask the user, show the default as a hint, allow them to skip",
+        "(neither)": "fully optional — /new-task does not need to ask"
+    },
+    "params": {
+        "appName": {
+            "type": "string",
+            "required": true,
+            "prompt": "Which application is this alert for? (used in the alert name prefix)",
+            "description": "Application name."
+        },
+        "env": {
+            "type": "string",
+            "required": true,
+            "enum": ["prod", "staging", "dev"],
+            "prompt": "Which environment? (prod / staging / dev)",
+            "description": "Environment label used in the alert name prefix."
+        },
+        "serviceName": {
+            "type": "string",
+            "required": true,
+            "prompt": "Which Dynatrace service do you want to monitor? (use the display name shown in Dynatrace, e.g. 'Tomcat/localhost')",
+            "description": "Dynatrace service display name. Resolved to SERVICE-xxx by resolve.py.",
+            "lookup": {
+                "entityType": "SERVICE",
+                "writeTo": "type.settings.scope"
+            }
+        },
+        "degradationMs": {
+            "type": "integer",
+            "min": 1,
+            "default": 100,
+            "suggested": true,
+            "prompt": "Alert when median response time is above how many milliseconds? (default 100)",
+            "description": "Median response time threshold in ms (5-minute window)."
+        },
+        "slowestDegradationMs": {
+            "type": "integer",
+            "min": 1,
+            "default": 1000,
+            "suggested": true,
+            "prompt": "Alert when the slowest 10% of requests are above how many milliseconds? (default 1000)",
+            "description": "Slowest-10% response time threshold in ms (5-minute window)."
+        },
+        "requestsPerMinute": {
+            "type": "integer",
+            "min": 1,
+            "default": 10,
+            "suggested": true,
+            "prompt": "Minimum traffic in requests/min before this alert kicks in? (default 10 — prevents false alarms on idle services)",
+            "description": "Minimum traffic before alerting fires."
+        },
+        "minutesAbnormalState": {
+            "type": "integer",
+            "min": 1,
+            "max": 60,
+            "default": 1,
+            "suggested": true,
+            "prompt": "How many minutes must the threshold be exceeded before alerting? (1-60, default 1)",
+            "description": "How long the abnormal state must persist."
+        },
+        "sensitivity": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "default": "low",
+            "suggested": true,
+            "prompt": "Alert sensitivity — low / medium / high? (default low)",
+            "description": "Alert sensitivity."
+        }
+    }
+}

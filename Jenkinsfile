@@ -42,6 +42,24 @@ pipeline {
             }
         }
 
+        stage('Resolve Names to IDs') {
+            when {
+                expression { return env.TASK_TYPE == 'deploy' }
+            }
+            steps {
+                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
+                    sh """
+                        python3 -m pip install --quiet --user pyyaml || python3 -m pip install --quiet pyyaml
+                        python3 scripts/resolve.py \\
+                            --task-id ${params.TASK_ID} \\
+                            --env-url https://${params.TARGET_ENVIRONMENT}.live.dynatrace.com
+                        echo '---- tasks/${params.TASK_ID}/config.yaml after resolve ----'
+                        cat tasks/${params.TASK_ID}/config.yaml
+                    """
+                }
+            }
+        }
+
         stage('Setup Monaco') {
             steps {
                 sh """
