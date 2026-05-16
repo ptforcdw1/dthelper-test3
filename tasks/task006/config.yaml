@@ -4,8 +4,8 @@ configs:
       name: "service-method-response-time"
       template: template.json
       parameters:
-        degradationMs: 100              # EDIT: Alert if median response time degrades beyond this many ms (5-min observation)
-        slowestDegradationMs: 1000      # EDIT: Alert if response time of slowest 10% degrades beyond this many ms (5-min observation)
+        degradationMs: 200              # EDIT: Alert if median response time degrades beyond this many ms (5-min observation)
+        slowestDegradationMs: 1500      # EDIT: Alert if response time of slowest 10% degrades beyond this many ms (5-min observation)
         sensitivity: "low"              # EDIT: Sensitivity for response time anomaly alerts (low / medium / high)
     type:
       settings:
