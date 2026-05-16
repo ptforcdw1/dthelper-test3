@@ -49,15 +49,10 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
                     sh """
-                        # Use a venv to avoid PEP 668 (externally-managed) errors
-                        # on modern Debian/Ubuntu system Python.
-                        if [ ! -d .venv ]; then
-                            python3 -m venv .venv
-                        fi
-                        . .venv/bin/activate
-                        pip install --quiet pyyaml
-
-                        python scripts/resolve.py \\
+                        # --user installs into ~/.local (no root needed);
+                        # --break-system-packages bypasses PEP 668 on Debian/Ubuntu.
+                        python3 -m pip install --quiet --user --break-system-packages pyyaml
+                        python3 scripts/resolve.py \\
                             --task-id ${params.TASK_ID} \\
                             --env-url https://${params.TARGET_ENVIRONMENT}.live.dynatrace.com
                         echo '---- tasks/${params.TASK_ID}/config.yaml after resolve ----'
