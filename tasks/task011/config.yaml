@@ -1,0 +1,14 @@
+configs:
+  - id: log-ingest-k8s-namespace
+    config:
+      name: "[{{ .appName }}-{{ .env }}] log ingest - {{ .namespaceName }} namespace"
+      template: template.json
+      parameters:
+        appName: "testapp"                        # EDIT: application name (used in config name prefix)
+        env: "dev"                                # EDIT: environment (used in config name prefix)
+        namespaceName: "mytest-logingest-ns"      # EDIT: Kubernetes namespace name to match (writes to matchers[0].values[0])
+        ruleTitle: "lngest logs from mytest-logingest-ns namespace"  # EDIT: rule title shown in Dynatrace UI (config-item-title)
+    type:
+      settings:
+        schema: builtin:logmonitoring.log-storage-settings
+        scope: environment
