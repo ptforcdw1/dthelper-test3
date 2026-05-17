@@ -1,0 +1,29 @@
+{
+  "responseTime": {
+    "enabled": true,
+    "detectionMode": "auto",
+    "autoDetection": {
+      "responseTimeAll": {
+        "degradationMilliseconds": {{ .degradationMs }},
+        "degradationPercent": {{ .degradationPercent }}
+      },
+      "responseTimeSlowest": {
+        "slowestDegradationMilliseconds": {{ .slowestDegradationMs }},
+        "slowestDegradationPercent": {{ .slowestDegradationPercent }}
+      },
+      "overAlertingProtection": {
+        "requestsPerMinute": {{ .requestsPerMinute }},
+        "minutesAbnormalState": {{ .minutesAbnormalState }}
+      }
+    }
+  },
+  "failureRate": {
+    "enabled": false
+  },
+  "loadDrops": {
+    "enabled": false
+  },
+  "loadSpikes": {
+    "enabled": false
+  }
+}
