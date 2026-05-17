@@ -25,9 +25,14 @@ pipeline {
             defaultValue: 'anomaly-service-responsetime-fix',
             description: 'Subdirectory under templates/ (e.g. "anomaly-service-responsetime-fix"). Must contain config.yaml + template.json + request-schema.json.'
         )
+        booleanParam(
+            name: 'GENERATE_TEMPLATE_ONLY',
+            defaultValue: false,
+            description: 'First-run mode: generate a blank params-template.xlsx for the selected TEMPLATE_NAME, archive it, and exit. Do NOT upload PARAMS_XLSX in this mode.'
+        )
         base64File(
             name: 'PARAMS_XLSX',
-            description: 'Excel file (.xlsx) with parameters. Row 1 = parameter names; row 2 = values. Leave empty on first run to generate a blank template.'
+            description: 'Excel file (.xlsx) with parameters. Row 1 = parameter names; row 2 = values. Required unless GENERATE_TEMPLATE_ONLY is checked.'
         )
         string(
             name: 'TARGET_ENVIRONMENT',
@@ -64,9 +69,9 @@ pipeline {
             }
         }
 
-        stage('Generate Blank xlsx (no upload)') {
+        stage('Generate Blank xlsx') {
             when {
-                expression { return !params.PARAMS_XLSX?.trim() }
+                expression { return params.GENERATE_TEMPLATE_ONLY }
             }
             steps {
                 sh """
@@ -75,13 +80,14 @@ pipeline {
                         --out      params-template.xlsx
                 """
                 archiveArtifacts artifacts: 'params-template.xlsx', allowEmptyArchive: false
-                script {
-                    error "No PARAMS_XLSX uploaded. A blank params-template.xlsx for '${params.TEMPLATE_NAME}' has been archived as a build artifact — download it, fill in the values in row 2, then re-run with PARAMS_XLSX set to the filled file."
-                }
+                echo "Generated params-template.xlsx for '${params.TEMPLATE_NAME}' and archived it as a build artifact. Download it, fill in row 2, then re-run with GENERATE_TEMPLATE_ONLY unchecked and PARAMS_XLSX set to the filled file."
             }
         }
 
         stage('Scaffold Ephemeral Task') {
+            when {
+                expression { return !params.GENERATE_TEMPLATE_ONLY }
+            }
             steps {
                 sh """
                     mkdir -p ${TASK_DIR}
@@ -95,6 +101,9 @@ pipeline {
         }
 
         stage('Render Config from xlsx') {
+            when {
+                expression { return !params.GENERATE_TEMPLATE_ONLY }
+            }
             steps {
                 sh """
                     python3 scripts/render_from_excel.py \\
@@ -120,6 +129,9 @@ pipeline {
         }
 
         stage('Resolve Names to IDs') {
+            when {
+                expression { return !params.GENERATE_TEMPLATE_ONLY }
+            }
             steps {
                 withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
                     sh """
@@ -139,6 +151,9 @@ pipeline {
         }
 
         stage('Setup Monaco') {
+            when {
+                expression { return !params.GENERATE_TEMPLATE_ONLY }
+            }
             steps {
                 sh """
                     BIN="monaco-\${MONACO_VERSION}"
@@ -153,6 +168,9 @@ pipeline {
         }
 
         stage('Prepare Manifest') {
+            when {
+                expression { return !params.GENERATE_TEMPLATE_ONLY }
+            }
             steps {
                 writeFile file: 'manifest-run.yaml', text: """\
 manifestVersion: "1.0"
@@ -173,6 +191,9 @@ environmentGroups:
         }
 
         stage('Validate (Dry Run)') {
+            when {
+                expression { return !params.GENERATE_TEMPLATE_ONLY }
+            }
             steps {
                 withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
                     sh './monaco deploy manifest-run.yaml --dry-run'
@@ -182,7 +203,10 @@ environmentGroups:
 
         stage('Deploy') {
             when {
-                expression { return !params.SKIP_DEPLOY }
+                allOf {
+                    expression { return !params.GENERATE_TEMPLATE_ONLY }
+                    expression { return !params.SKIP_DEPLOY }
+                }
             }
             steps {
                 withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
