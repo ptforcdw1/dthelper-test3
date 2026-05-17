@@ -25,7 +25,7 @@ pipeline {
             defaultValue: 'anomaly-service-responsetime-fix',
             description: 'Subdirectory under templates/ (e.g. "anomaly-service-responsetime-fix"). Must contain config.yaml + template.json + request-schema.json.'
         )
-        file(
+        base64File(
             name: 'PARAMS_XLSX',
             description: 'Excel file (.xlsx) with parameters. Row 1 = parameter names; row 2 = values. Leave empty on first run to generate a blank template.'
         )
@@ -66,7 +66,7 @@ pipeline {
 
         stage('Generate Blank xlsx (no upload)') {
             when {
-                expression { return !fileExists('PARAMS_XLSX') }
+                expression { return !params.PARAMS_XLSX?.trim() }
             }
             steps {
                 sh """
@@ -87,8 +87,10 @@ pipeline {
                     mkdir -p ${TASK_DIR}
                     cp templates/${params.TEMPLATE_NAME}/config.yaml   ${TASK_DIR}/config.yaml
                     cp templates/${params.TEMPLATE_NAME}/template.json ${TASK_DIR}/template.json
-                    cp PARAMS_XLSX ${TASK_DIR}/params.xlsx
                 """
+                withFileParameter('PARAMS_XLSX') {
+                    sh "cp \"\$PARAMS_XLSX\" ${TASK_DIR}/params.xlsx"
+                }
             }
         }
 
@@ -201,7 +203,7 @@ environmentGroups:
             echo "Template '${params.TEMPLATE_NAME}' failed on ${params.TARGET_ENVIRONMENT}. Review the logs above."
         }
         cleanup {
-            sh "rm -rf ${TASK_DIR} PARAMS_XLSX params-template.xlsx || true"
+            sh "rm -rf ${TASK_DIR} params-template.xlsx || true"
         }
     }
 }
