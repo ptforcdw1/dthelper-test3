@@ -1,0 +1,207 @@
+// ============================================================================
+// Jenkinsfile.attachment
+//
+// Ephemeral-task pipeline driven by an Excel attachment.
+//
+// Flow:
+//   user picks TEMPLATE_NAME + uploads PARAMS_XLSX (one row of values)
+//     -> scaffold tasks/build-<N>/ from templates/<TEMPLATE_NAME>/
+//     -> read xlsx, write values into ephemeral config.yaml + template.json
+//     -> print both files in the build log (audit)
+//     -> resolve names to Dynatrace IDs
+//     -> monaco dry-run + deploy
+//
+// Bootstrap: if PARAMS_XLSX is not uploaded, the pipeline generates a blank
+// params-template.xlsx for the selected TEMPLATE_NAME, archives it, and exits.
+// Download it from the build artifacts, fill in the values, then re-run.
+// ============================================================================
+
+pipeline {
+    agent any
+
+    parameters {
+        string(
+            name: 'TEMPLATE_NAME',
+            defaultValue: 'anomaly-service-responsetime-fix',
+            description: 'Subdirectory under templates/ (e.g. "anomaly-service-responsetime-fix"). Must contain config.yaml + template.json + request-schema.json.'
+        )
+        file(
+            name: 'PARAMS_XLSX',
+            description: 'Excel file (.xlsx) with parameters. Row 1 = parameter names; row 2 = values. Leave empty on first run to generate a blank template.'
+        )
+        string(
+            name: 'TARGET_ENVIRONMENT',
+            defaultValue: 'ylq89164',
+            description: 'Target Dynatrace environment.'
+        )
+        booleanParam(
+            name: 'SKIP_DEPLOY',
+            defaultValue: false,
+            description: 'Dry-run validation only — skip actual deployment.'
+        )
+    }
+
+    environment {
+        MONACO_VERSION = '2.28.7'
+        TASK_DIR       = "tasks/build-${BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Validate Template') {
+            steps {
+                script {
+                    if (!params.TEMPLATE_NAME?.trim()) {
+                        error 'TEMPLATE_NAME is required.'
+                    }
+                    if (!fileExists("templates/${params.TEMPLATE_NAME}/config.yaml")) {
+                        error "Unknown template '${params.TEMPLATE_NAME}' — templates/${params.TEMPLATE_NAME}/config.yaml not found."
+                    }
+                    if (!fileExists("templates/${params.TEMPLATE_NAME}/template.json")) {
+                        error "templates/${params.TEMPLATE_NAME}/template.json not found."
+                    }
+                    sh 'python3 -m pip install --quiet --user --break-system-packages pyyaml openpyxl'
+                }
+            }
+        }
+
+        stage('Generate Blank xlsx (no upload)') {
+            when {
+                expression { return !fileExists('PARAMS_XLSX') }
+            }
+            steps {
+                sh """
+                    python3 scripts/generate_excel_template.py \\
+                        --template ${params.TEMPLATE_NAME} \\
+                        --out      params-template.xlsx
+                """
+                archiveArtifacts artifacts: 'params-template.xlsx', allowEmptyArchive: false
+                script {
+                    error "No PARAMS_XLSX uploaded. A blank params-template.xlsx for '${params.TEMPLATE_NAME}' has been archived as a build artifact — download it, fill in the values in row 2, then re-run with PARAMS_XLSX set to the filled file."
+                }
+            }
+        }
+
+        stage('Scaffold Ephemeral Task') {
+            steps {
+                sh """
+                    mkdir -p ${TASK_DIR}
+                    cp templates/${params.TEMPLATE_NAME}/config.yaml   ${TASK_DIR}/config.yaml
+                    cp templates/${params.TEMPLATE_NAME}/template.json ${TASK_DIR}/template.json
+                    cp PARAMS_XLSX ${TASK_DIR}/params.xlsx
+                """
+            }
+        }
+
+        stage('Render Config from xlsx') {
+            steps {
+                sh """
+                    python3 scripts/render_from_excel.py \\
+                        --template ${params.TEMPLATE_NAME} \\
+                        --xlsx     ${TASK_DIR}/params.xlsx \\
+                        --task-dir ${TASK_DIR}
+
+                    echo ''
+                    echo '======================================================================'
+                    echo '  Rendered ${TASK_DIR}/config.yaml'
+                    echo '======================================================================'
+                    cat ${TASK_DIR}/config.yaml
+
+                    echo ''
+                    echo '======================================================================'
+                    echo '  Rendered ${TASK_DIR}/template.json'
+                    echo '======================================================================'
+                    cat ${TASK_DIR}/template.json
+                    echo '======================================================================'
+                    echo ''
+                """
+            }
+        }
+
+        stage('Resolve Names to IDs') {
+            steps {
+                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
+                    sh """
+                        python3 scripts/resolve.py \\
+                            --task-id build-${BUILD_NUMBER} \\
+                            --env-url https://${params.TARGET_ENVIRONMENT}.live.dynatrace.com
+
+                        echo ''
+                        echo '======================================================================'
+                        echo '  ${TASK_DIR}/config.yaml after resolve'
+                        echo '======================================================================'
+                        cat ${TASK_DIR}/config.yaml
+                        echo '======================================================================'
+                    """
+                }
+            }
+        }
+
+        stage('Setup Monaco') {
+            steps {
+                sh """
+                    BIN="monaco-\${MONACO_VERSION}"
+                    if [ ! -f "\$BIN" ]; then
+                        curl -fsSL -o "\$BIN" https://github.com/dynatrace-oss/dynatrace-monitoring-as-code/releases/download/v\${MONACO_VERSION}/monaco-linux-amd64
+                        chmod +x "\$BIN"
+                    fi
+                    ln -sf "\$BIN" monaco
+                    ./monaco --help | head -3
+                """
+            }
+        }
+
+        stage('Prepare Manifest') {
+            steps {
+                writeFile file: 'manifest-run.yaml', text: """\
+manifestVersion: "1.0"
+projects:
+  - name: build-${BUILD_NUMBER}
+    path: ${TASK_DIR}
+environmentGroups:
+  - name: production
+    environments:
+      - name: ${params.TARGET_ENVIRONMENT}
+        url:
+          value: https://${params.TARGET_ENVIRONMENT}.live.dynatrace.com
+        auth:
+          token:
+            name: DT_API_TOKEN
+"""
+            }
+        }
+
+        stage('Validate (Dry Run)') {
+            steps {
+                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
+                    sh './monaco deploy manifest-run.yaml --dry-run'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                expression { return !params.SKIP_DEPLOY }
+            }
+            steps {
+                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
+                    sh './monaco deploy manifest-run.yaml'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: "${TASK_DIR}/**", allowEmptyArchive: true
+        }
+        success {
+            echo "Template '${params.TEMPLATE_NAME}' deployed successfully to ${params.TARGET_ENVIRONMENT} (build ${BUILD_NUMBER})."
+        }
+        failure {
+            echo "Template '${params.TEMPLATE_NAME}' failed on ${params.TARGET_ENVIRONMENT}. Review the logs above."
+        }
+        cleanup {
+            sh "rm -rf ${TASK_DIR} PARAMS_XLSX params-template.xlsx || true"
+        }
+    }
+}
