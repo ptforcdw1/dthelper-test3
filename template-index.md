@@ -29,3 +29,8 @@ One section per template. Lists `Level` (`app-specific` or `global`), `Name temp
 - **Level:** app-specific
 - **Name template:** `[<AppName>-<Env>] log ingest - <namespaceName> namespace`
 - Log ingest rule that stores logs from a specific Kubernetes namespace (matches k8s.namespace.name).
+
+## anomaly-detectors-download
+- **Level:** global
+- **Task type:** download (export-only, no deployment)
+- Download all Davis anomaly detectors from Dynatrace.

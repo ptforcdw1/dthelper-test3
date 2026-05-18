@@ -46,3 +46,12 @@ Single source of truth for prompts and defaults is `templates/anomaly-service-re
 | `namespaceName` | Kubernetes namespace to match. Written into the rule's `matchers[0].values[0]`; `matchers[0].attribute` is hardcoded to `k8s.namespace.name`. | `my-namespace` |
 | `ruleTitle` | Rule name shown in the Dynatrace UI (written into `config-item-title`). | `Ingest logs from k8s namespace` |
 
+## anomaly-detectors-download
+
+This is a **download-only** template — it has no parameters. It exports all Davis anomaly detectors from your Dynatrace environment.
+
+To use it:
+1. Create a task from this template via `/new-task anomaly-detectors-download`.
+2. Run the Jenkins pipeline with `TASK_ID=anomaly-download-<timestamp>`.
+3. Download the exported JSON from the build artifacts.
+

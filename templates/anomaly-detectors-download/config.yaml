@@ -1,0 +1,10 @@
+configs:
+  - id: anomaly-detectors-export
+    config:
+      name: "Anomaly Detectors Export"
+    type:
+      settings:
+        schema: builtin:davis.anomaly-detectors
+        scope: environment
+task_type: download
+outputFolder: export
