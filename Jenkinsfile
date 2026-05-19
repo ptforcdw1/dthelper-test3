@@ -96,10 +96,16 @@ pipeline {
             steps {
                 script {
                     def platformBlock = ''
+                    def envUrl = "https://${params.TARGET_ENVIRONMENT}.live.dynatrace.com"
                     if (env.HAS_PLATFORM_TOKEN == 'true') {
                         platformBlock = '''
           platformToken:
             name: DT_PLATFORM_TOKEN'''
+                        // Platform token requires the apps.dynatrace.com URL — the live.dynatrace.com
+                        // platform-metadata discovery endpoint 403s on most tenants. The apps URL
+                        // routes classic schemas via /platform/classic/environment-api/* proxy and
+                        // Grail-era schemas (e.g. builtin:davis.anomaly-detectors) directly.
+                        envUrl = "https://${params.TARGET_ENVIRONMENT}.apps.dynatrace.com"
                     }
                     writeFile file: 'manifest-run.yaml', text: """\
 manifestVersion: "1.0"
@@ -111,7 +117,7 @@ environmentGroups:
     environments:
       - name: ${params.TARGET_ENVIRONMENT}
         url:
-          value: https://ylq89164.live.dynatrace.com
+          value: ${envUrl}
         auth:
           token:
             name: DT_API_TOKEN${platformBlock}
