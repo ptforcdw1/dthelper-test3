@@ -42,17 +42,17 @@ pipeline {
             }
         }
 
-        stage('Check OAuth Availability') {
+        stage('Check Platform Token Availability') {
             steps {
                 script {
                     try {
-                        withCredentials([string(credentialsId: 'dynatrace-oauth-client-id', variable: '_OAUTH_CHECK')]) {
-                            env.HAS_OAUTH = 'true'
-                            echo 'OAuth credentials detected — Grail-era schemas (e.g. builtin:davis.anomaly-detectors) will use OAuth.'
+                        withCredentials([string(credentialsId: 'dynatrace-platform-token', variable: '_PT_CHECK')]) {
+                            env.HAS_PLATFORM_TOKEN = 'true'
+                            echo 'Platform token detected — Grail-era schemas (e.g. builtin:davis.anomaly-detectors) will use it.'
                         }
                     } catch (Exception e) {
-                        env.HAS_OAUTH = 'false'
-                        echo 'OAuth credentials NOT configured (dynatrace-oauth-client-id missing). Classic schemas will still deploy via API token. Grail-era schemas (e.g. builtin:davis.anomaly-detectors) will fail.'
+                        env.HAS_PLATFORM_TOKEN = 'false'
+                        echo 'Platform token NOT configured (dynatrace-platform-token missing). Classic schemas will still deploy via API token. Grail-era schemas (e.g. builtin:davis.anomaly-detectors) will fail.'
                     }
                 }
             }
@@ -95,16 +95,11 @@ pipeline {
         stage('Prepare Manifest') {
             steps {
                 script {
-                    def oAuthBlock = ''
-                    if (env.HAS_OAUTH == 'true') {
-                        oAuthBlock = '''
-          oAuth:
-            clientId:
-              name: DT_OAUTH_CLIENT_ID
-            clientSecret:
-              name: DT_OAUTH_CLIENT_SECRET
-            tokenEndpoint:
-              value: https://sso.dynatrace.com/sso/oauth2/token'''
+                    def platformBlock = ''
+                    if (env.HAS_PLATFORM_TOKEN == 'true') {
+                        platformBlock = '''
+          platformToken:
+            name: DT_PLATFORM_TOKEN'''
                     }
                     writeFile file: 'manifest-run.yaml', text: """\
 manifestVersion: "1.0"
@@ -119,7 +114,7 @@ environmentGroups:
           value: https://ylq89164.live.dynatrace.com
         auth:
           token:
-            name: DT_API_TOKEN${oAuthBlock}
+            name: DT_API_TOKEN${platformBlock}
 """
                 }
             }
@@ -132,11 +127,8 @@ environmentGroups:
             steps {
                 script {
                     def creds = [string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]
-                    if (env.HAS_OAUTH == 'true') {
-                        creds += [
-                            string(credentialsId: 'dynatrace-oauth-client-id', variable: 'DT_OAUTH_CLIENT_ID'),
-                            string(credentialsId: 'dynatrace-oauth-client-secret', variable: 'DT_OAUTH_CLIENT_SECRET')
-                        ]
+                    if (env.HAS_PLATFORM_TOKEN == 'true') {
+                        creds += [string(credentialsId: 'dynatrace-platform-token', variable: 'DT_PLATFORM_TOKEN')]
                     }
                     withCredentials(creds) {
                         sh './monaco deploy manifest-run.yaml --dry-run'
@@ -155,11 +147,8 @@ environmentGroups:
             steps {
                 script {
                     def creds = [string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]
-                    if (env.HAS_OAUTH == 'true') {
-                        creds += [
-                            string(credentialsId: 'dynatrace-oauth-client-id', variable: 'DT_OAUTH_CLIENT_ID'),
-                            string(credentialsId: 'dynatrace-oauth-client-secret', variable: 'DT_OAUTH_CLIENT_SECRET')
-                        ]
+                    if (env.HAS_PLATFORM_TOKEN == 'true') {
+                        creds += [string(credentialsId: 'dynatrace-platform-token', variable: 'DT_PLATFORM_TOKEN')]
                     }
                     withCredentials(creds) {
                         sh './monaco deploy manifest-run.yaml'
@@ -175,11 +164,8 @@ environmentGroups:
             steps {
                 script {
                     def creds = [string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]
-                    if (env.HAS_OAUTH == 'true') {
-                        creds += [
-                            string(credentialsId: 'dynatrace-oauth-client-id', variable: 'DT_OAUTH_CLIENT_ID'),
-                            string(credentialsId: 'dynatrace-oauth-client-secret', variable: 'DT_OAUTH_CLIENT_SECRET')
-                        ]
+                    if (env.HAS_PLATFORM_TOKEN == 'true') {
+                        creds += [string(credentialsId: 'dynatrace-platform-token', variable: 'DT_PLATFORM_TOKEN')]
                     }
                     withCredentials(creds) {
                         def schema = sh(
