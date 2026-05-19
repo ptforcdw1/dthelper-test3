@@ -42,6 +42,22 @@ pipeline {
             }
         }
 
+        stage('Check OAuth Availability') {
+            steps {
+                script {
+                    try {
+                        withCredentials([string(credentialsId: 'dynatrace-oauth-client-id', variable: '_OAUTH_CHECK')]) {
+                            env.HAS_OAUTH = 'true'
+                            echo 'OAuth credentials detected — Grail-era schemas (e.g. builtin:davis.anomaly-detectors) will use OAuth.'
+                        }
+                    } catch (Exception e) {
+                        env.HAS_OAUTH = 'false'
+                        echo 'OAuth credentials NOT configured (dynatrace-oauth-client-id missing). Classic schemas will still deploy via API token. Grail-era schemas (e.g. builtin:davis.anomaly-detectors) will fail.'
+                    }
+                }
+            }
+        }
+
         stage('Resolve Names to IDs') {
             when {
                 expression { return env.TASK_TYPE == 'deploy' }
@@ -78,7 +94,19 @@ pipeline {
 
         stage('Prepare Manifest') {
             steps {
-                writeFile file: 'manifest-run.yaml', text: """\
+                script {
+                    def oAuthBlock = ''
+                    if (env.HAS_OAUTH == 'true') {
+                        oAuthBlock = '''
+          oAuth:
+            clientId:
+              name: DT_OAUTH_CLIENT_ID
+            clientSecret:
+              name: DT_OAUTH_CLIENT_SECRET
+            tokenEndpoint:
+              value: https://sso.dynatrace.com/sso/oauth2/token'''
+                    }
+                    writeFile file: 'manifest-run.yaml', text: """\
 manifestVersion: "1.0"
 projects:
   - name: ${params.TASK_ID}
@@ -91,8 +119,9 @@ environmentGroups:
           value: https://ylq89164.live.dynatrace.com
         auth:
           token:
-            name: DT_API_TOKEN
+            name: DT_API_TOKEN${oAuthBlock}
 """
+                }
             }
         }
 
@@ -101,8 +130,17 @@ environmentGroups:
                 expression { return env.TASK_TYPE == 'deploy' }
             }
             steps {
-                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
-                    sh './monaco deploy manifest-run.yaml --dry-run'
+                script {
+                    def creds = [string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]
+                    if (env.HAS_OAUTH == 'true') {
+                        creds += [
+                            string(credentialsId: 'dynatrace-oauth-client-id', variable: 'DT_OAUTH_CLIENT_ID'),
+                            string(credentialsId: 'dynatrace-oauth-client-secret', variable: 'DT_OAUTH_CLIENT_SECRET')
+                        ]
+                    }
+                    withCredentials(creds) {
+                        sh './monaco deploy manifest-run.yaml --dry-run'
+                    }
                 }
             }
         }
@@ -115,8 +153,17 @@ environmentGroups:
                 }
             }
             steps {
-                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
-                    sh './monaco deploy manifest-run.yaml'
+                script {
+                    def creds = [string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]
+                    if (env.HAS_OAUTH == 'true') {
+                        creds += [
+                            string(credentialsId: 'dynatrace-oauth-client-id', variable: 'DT_OAUTH_CLIENT_ID'),
+                            string(credentialsId: 'dynatrace-oauth-client-secret', variable: 'DT_OAUTH_CLIENT_SECRET')
+                        ]
+                    }
+                    withCredentials(creds) {
+                        sh './monaco deploy manifest-run.yaml'
+                    }
                 }
             }
         }
@@ -126,8 +173,15 @@ environmentGroups:
                 expression { return env.TASK_TYPE == 'download' }
             }
             steps {
-                withCredentials([string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]) {
-                    script {
+                script {
+                    def creds = [string(credentialsId: 'dynatrace-api-token', variable: 'DT_API_TOKEN')]
+                    if (env.HAS_OAUTH == 'true') {
+                        creds += [
+                            string(credentialsId: 'dynatrace-oauth-client-id', variable: 'DT_OAUTH_CLIENT_ID'),
+                            string(credentialsId: 'dynatrace-oauth-client-secret', variable: 'DT_OAUTH_CLIENT_SECRET')
+                        ]
+                    }
+                    withCredentials(creds) {
                         def schema = sh(
                             script: """grep 'schema:' tasks/${params.TASK_ID}/config.yaml | awk '{print \$2}' | tr -d '"'""",
                             returnStdout: true
