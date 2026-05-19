@@ -1,0 +1,16 @@
+configs:
+  - id: anomaly-response-endpoint-p50-fix
+    config:
+      name: "[{{ .appName }}-{{ .env }}] P50 response time fixed threshold - {{ .serviceName }}/{{ .endpointName }}"
+      template: template.json
+      parameters:
+        appName: "petalert"                                             # EDIT: application name (used in config name prefix)
+        env: "prod"                                                     # EDIT: environment (used in config name prefix)
+        title: "P50 RT fix - Tomcat/localhost / /api/owners"            # EDIT: display name shown in the Dynatrace anomaly detector UI
+        serviceName: "Tomcat/localhost"                                  # EDIT: Dynatrace service name to scope this detector
+        endpointName: "/api/owners"                                     # EDIT: endpoint name to scope this detector
+        threshold: 200000                                               # EDIT: fixed P50 alert threshold in microseconds (500000 = 500 ms)
+    type:
+      settings:
+        schema: builtin:davis.anomaly-detectors
+        scope: environment
