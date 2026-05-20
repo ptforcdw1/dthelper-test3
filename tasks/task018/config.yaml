@@ -1,0 +1,16 @@
+configs:
+  - id: anomaly-response-endpoint-adaptive
+    config:
+      name: "[{{ .appName }}-{{ .env }}] P{{ .percentile }} response time adaptive - {{ .serviceName }}/{{ .endpointName }}"
+      template: template.json
+      parameters:
+        appName: "petadapt"                                     # EDIT: application name (used in config name prefix)
+        env: "prod"                                             # EDIT: environment (used in config name prefix)
+        title: "P90 RT adaptive Tomcat/localhost /api/owners"   # EDIT: display name shown in the Dynatrace anomaly detector UI
+        serviceName: "Tomcat/localhost"                         # EDIT: Dynatrace service name (dt.entity.service.name exact match)
+        endpointName: "/api/owners"                             # EDIT: endpoint name (dt.endpoint.name exact match)
+        percentile: 90                                          # EDIT: percentile to monitor (50, 90, 95, 99, etc.)
+    type:
+      settings:
+        schema: builtin:davis.anomaly-detectors
+        scope: environment
